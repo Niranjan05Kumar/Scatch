@@ -1,0 +1,66 @@
+<%- include('./partials/header') %>
+
+
+            <div class="w-full h-auto flex flex-col px-[5vw] md:px-[10vw] mt-[75px] md:mt-[90px]">
+                <div class="flex flex-col lg:flex-row gap-6 w-full h-auto">
+                    <!-- Sidebar -->
+                    <div class="w-[25%] lg:w-1/4">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold mb-4">Navigation</h3>
+                            <div class="flex flex-col space-y-2">
+                                <a class="block p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200" href="">All Products</a>
+                                <a class="block p-3 rounded-lg bg-blue-50 text-blue-700 font-medium" href="">Create new product</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Main Content -->
+                    <main class="w-full lg:w-3/4">
+                        <div class="bg-white p-6 md:p-8 rounded-lg shadow-md">
+                            <h2 class="text-2xl font-bold mb-6 text-gray-800">Create New Product</h2>
+                            <form autocomplete="off" action="/products/create" method="post" enctype="multipart/form-data" class="space-y-6">
+                                <!-- Product Details Section -->
+                                <div class="border-b pb-6">
+                                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Product Details</h3>
+                                    
+                                    <!-- Product Image -->
+                                    <div class="mb-6">
+                                        <label class="block mb-2 font-medium text-gray-700">Product Image</label>
+                                        <input name="image" type="file" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                    </div>
+                                    
+                                    <!-- Product Info Grid -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <input name="name" type="text" placeholder="Product Name"
+                                            class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                        <input name="price" type="text" placeholder="Product Price"
+                                            class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                        <input name="discount" type="text" placeholder="Discount Price"
+                                            class="border border-gray-300 p-3 rounded-lg w-full md:col-span-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                    </div>
+                                </div>
+
+                                <!-- Panel Details Section -->
+                                <div class="pb-6">
+                                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Panel Details</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                        <input name="bgcolor" type="text" placeholder="Background Color"
+                                            class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                        <input name="panelcolor" type="text" placeholder="Panel Color"
+                                            class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                        <input name="textcolor" type="text" placeholder="Text Color"
+                                            class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="pt-4">
+                                    <button type="submit" class="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 outline-none">
+                                        Create New Product
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </main>
+                </div>
+            </div>
+            <%- include('./partials/footer') %>
