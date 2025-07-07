@@ -1,5 +1,24 @@
 <%- include('./partials/header') %>
+            <% if(success.length>0){ %>
+                <div
+                    class="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-green-200 text-green-800">
+                        <span class="inline-block mt-1 mb-1">
+                            <i class="fa-solid fa-check mr-2"></i>
+                            <strong>Success:</strong>
+                            <%= success %>
+                        </span>
+                </div>
+            <% } %>
 
+            <% if(error.length>0){ %>
+                <div class="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-red-200 text-red-800">
+                    <span class="inline-block mt-1 mb-1">
+                        <strong>Error:</strong>
+                        <strong class="font-semibold">Oops!</strong>
+                        <%= error %>
+                    </span>
+                </div>
+            <% } %>
 
             <div class="w-full h-auto flex flex-col px-[5vw] md:px-[10vw] mt-[75px] md:mt-[90px]">
                 <div class="flex flex-col lg:flex-row gap-6 w-full h-auto">
