@@ -8,24 +8,15 @@
                     <div class="w-full gap-0 md:gap-[5%] flex flex-col sm:flex-row items-center justify-center h-auto">
                         <div class="w-full md:w-[35%] lg:w-[30%] rounded-md overflow-hidden shadow-lg"
                             style="--bg-color: <%= item.bgcolor %>; --text-color: <%= item.textcolor %>; --panel-color: <%= item.panelcolor %>; background-color: var(--bg-color);">
-                            <div class="w-full h-64 md:h-80 flex items-center justify-center">
+                            <div class="w-full h-68 md:h-80 flex items-center justify-center">
                                 <img src="data:image/jpeg;base64,<%= item.image.toString('base64') %>"
-                                    class="w-2/3 h-full object-contain" alt="<%= item.name %>">
+                                    class="w-4/7 h-6/7 object-contain" alt="<%= item.name %>">
                             </div>
-                            <div class="w-full flex flex-col sm:flex-row sm:justify-between px-4 md:px-5 py-4 gap-3 sm:gap-0"
+                            <div class="w-full flex sm:flex-row justify-between px-4 md:px-5 py-4 gap-3 sm:gap-0"
                                 style="color: var(--text-color); background-color: var(--panel-color);">
                                 <h3 class="text-xl md:text-2xl font-medium">
                                     <%= item.name %>
                                 </h3>
-                                <div class="flex items-center gap-2">
-                                    <i
-                                        class="w-7 h-7 bg-white flex rounded-full items-center justify-center ri-subtract-line cursor-pointer hover:bg-gray-100 transition-colors"></i>
-                                    <div
-                                        class="px-3 py-1 rounded-md bg-white text-black font-medium min-w-[40px] text-center">
-                                        01</div>
-                                    <i
-                                        class="w-7 h-7 bg-white flex rounded-full items-center justify-center ri-add-line cursor-pointer hover:bg-gray-100 transition-colors"></i>
-                                </div>
                             </div>
                             <div class="flex items-center justify-between px-4 md:px-5 py-3"
                                 style="color: white; background-color: var(--text-color);">

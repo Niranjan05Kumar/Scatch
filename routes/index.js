@@ -69,4 +69,13 @@ router.get("/account", isLoggedIn, async (req, res) => {
   res.render("account", { user, success });
 });
 
+router.get("/ownerlogin", async (req, res) => {
+  let error = req.flash("error");
+  let success = req.flash("success");
+  res.render("owner-login", {
+    error,
+    success,
+    loggedIn: false,});
+});
+
 module.exports = router;

@@ -9,9 +9,8 @@ if (process.env.NODE_ENV === "development") {
 
     const ownerExists = await ownerModel.find();
     if (ownerExists.length > 0) {
-      return res
-        .status(400)
-        .send("you don't have permission to create an owner");
+      req.flash("error", "You don't have permission to create an owner");
+      return res.redirect("/ownerlogin");
     }
 
     const createdOwner = await ownerModel.create({
@@ -19,35 +18,44 @@ if (process.env.NODE_ENV === "development") {
       email,
       password,
     });
+    let error = req.flash("error");
+    let success = req.flash("success");
+    let products = await productModel.find();
+    req.flash("success", "Owner created successfully");
+    return res.render("admin", {
+      success,
+      error,
+      products,
+      loggedIn: false,
+      activeTab: "all-products",
+    });
+  });
 
-    res.status(201).send("Owner created successfully");
+  router.get("/", async (req, res) => {
+    let error = req.flash("error");
+    let success = req.flash("success");
+    let products = await productModel.find();
+    res.render("admin", {
+      error,
+      success,
+      products,
+      loggedIn: false,
+      activeTab: "all-products",
+    });
+  });
+
+  router.get("/create", async (req, res) => {
+    let error = req.flash("error");
+    let success = req.flash("success");
+    let products = await productModel.find();
+    res.render("admin", {
+      error,
+      success,
+      products,
+      loggedIn: false,
+      activeTab: "create-product",
+    });
   });
 }
-
-router.get("/", async (req, res) => {
-  let error = req.flash("error");
-  let success = req.flash("success");
-  let products = await productModel.find();
-  res.render("createproducts", {
-    error, 
-    success, 
-    products, 
-    loggedIn: false, 
-    activeTab: "all-products"
-  });
-});
-
-router.get("/create", async (req, res) => {
-  let error = req.flash("error");
-  let success = req.flash("success");
-  let products = await productModel.find();
-  res.render("createproducts", {
-    error, 
-    success, 
-    products, 
-    loggedIn: false, 
-    activeTab: "create-product"
-  });
-});
 
 module.exports = router;
