@@ -14,7 +14,29 @@ router.get("/shop", isLoggedIn, async (req, res) => {
   let warning = req.flash("warning");
   let success = req.flash("success");
   let products = await productModel.find();
-  res.render("shop", { user, products, warning, success });
+  res.render("shop", {
+    user,
+    products,
+    warning,
+    success,
+    activeTab: "all-products",
+  });
+});
+router.get("/shop/discounted", isLoggedIn, async (req, res) => {
+  const user = req.user;
+  let warning = req.flash("warning");
+  let success = req.flash("success");
+  let products = await productModel.find();
+  let discountedProducts = products.filter((product) => {
+    return product.discount > 0;
+  });
+  res.render("shop", {
+    user,
+    discountedProducts,
+    warning,
+    success,
+    activeTab: "discounted-products",
+  });
 });
 
 router.get("/addtocart/:productid", isLoggedIn, async (req, res) => {
@@ -37,7 +59,7 @@ router.get("/cart", isLoggedIn, async (req, res) => {
     .findOne({ email: req.user.email })
     .populate("cart");
 
-    let success = req.flash("success");
+  let success = req.flash("success");
   res.render("cart", { user, success });
 });
 

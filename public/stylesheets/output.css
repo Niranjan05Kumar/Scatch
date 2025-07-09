@@ -178,7 +178,6 @@
   }
   img, svg, video, canvas, audio, iframe, embed, object {
     display: block;
-    vertical-align: middle;
   }
   img, video {
     max-width: 100%;
@@ -355,6 +354,12 @@
   .mt-10 {
     margin-top: calc(var(--spacing) * 10);
   }
+  .mt-20 {
+    margin-top: calc(var(--spacing) * 20);
+  }
+  .mt-32 {
+    margin-top: calc(var(--spacing) * 32);
+  }
   .mt-\[75px\] {
     margin-top: 75px;
   }
@@ -402,6 +407,7 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
   }
   .block {
     display: block;
@@ -459,6 +465,9 @@
   }
   .h-\[1px\] {
     height: 1px;
+  }
+  .h-\[12rem\] {
+    height: 12rem;
   }
   .h-\[80\] {
     height: 80;
@@ -637,6 +646,9 @@
   }
   .justify-center {
     justify-content: center;
+  }
+  .justify-end {
+    justify-content: flex-end;
   }
   .justify-start {
     justify-content: flex-start;
@@ -898,6 +910,9 @@
   }
   .bg-zinc-100 {
     background-color: var(--color-zinc-100);
+  }
+  .bg-zinc-300 {
+    background-color: var(--color-zinc-300);
   }
   .bg-zinc-500 {
     background-color: var(--color-zinc-500);
@@ -1369,6 +1384,13 @@
       }
     }
   }
+  .hover\:bg-yellow-100 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-yellow-100);
+      }
+    }
+  }
   .hover\:bg-yellow-400 {
     &:hover {
       @media (hover: hover) {
@@ -1663,9 +1685,9 @@
       gap: 5%;
     }
   }
-  .md\:gap-\[to-5\%\] {
+  .md\:gap-\[5\%\] {
     @media (width >= 48rem) {
-      gap: to-5%;
+      gap: 5%;
     }
   }
   .md\:space-y-4 {
@@ -1841,7 +1863,6 @@
       appearance: none;
     }
   }
-}
 .font-inter {
   font-family: 'Inter', sans-serif;
 }
@@ -2132,4 +2153,5 @@
       --tw-scale-z: 1;
     }
   }
+}
 }
