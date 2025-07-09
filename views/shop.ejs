@@ -1,103 +1,20 @@
 <%- include('./partials/header') %>
-
-            <% if(success.length>0){ %>
-                <div
-                    class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-green-200 text-green-800">
-                        <span class="inline-block mt-1 mb-1">
-                            <i class="fa-solid fa-check mr-2"></i>
-                            <strong>Success:</strong>
-                            <%= success %>
-                        </span>
-                </div>
-            <% } %>
-
-            <% if(warning.length>0){ %>
-                <div class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-yellow-100 text-yellow-500">
-                    <span class="inline-block mt-1 mb-1">
-                        <strong class="font-semibold">Oops!</strong>
-                        <%= warning %>
-                    </span>
-                </div>
-            <% } %>
+    <%- include('./partials/flashMessage') %>
 
 
-    <div class="w-full h-auto flex items-start px-[5vw] md:px-[10vw]">
+        <div class="w-full h-auto flex items-start px-[5vw] md:px-[10vw]">
 
-        <div class="hidden lg:flex lg:w-[20%] h-fit flex-col items-start pr-6">
-            <!-- Sort Section -->
-            <div class="w-full mb-8">
-                <div class="flex items-center gap-3 mb-4">
-                    <i class="ri-sort-desc text-gray-600"></i>
-                    <h3 class="text-lg font-semibold text-gray-800">Sort By</h3>
-                </div>
-                <form action="/shop" class="w-full">
-                    <select
-                        class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 bg-white focus:border-yellow-400 focus:outline-none transition-colors duration-200"
-                        name="sortby" onchange="this.form.submit()">
-                        <option value="popular">Popular</option>
-                        <option value="newest">Newest</option>
-                        <option value="price-low">Price: Low to High</option>
-                        <option value="price-high">Price: High to Low</option>
-                    </select>
-                </form>
-            </div>
-
-            <!-- Categories Section -->
-            <div class="w-full mb-8">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <i class="ri-list-check text-gray-600"></i>
-                    Categories
-                </h3>
-                <div class="space-y-3">
-                    <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 font-medium"
-                        href="">New Collection</a>
-                    <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
-                        href="">All Products</a>
-                    <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
-                        href="">Discounted Products</a>
-                </div>
-            </div>
-
-            <!-- Filters Section -->
-            <div class="w-full">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <i class="ri-filter-3-line text-gray-600"></i>
-                    Filters
-                </h3>
-                <div class="space-y-3">
-                    <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
-                        href="">Availability</a>
-                    <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
-                        href="">Discount</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Filter Button -->
-        <div class="lg:hidden fixed bottom-[5vw] right-[5vw] z-50">
-            <button id="mobileFilterBtn"
-                class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-3 px-4 rounded-full shadow-lg transition-all duration-200 flex items-center gap-2">
-                <i class="ri-filter-3-line"></i>
-                <span class="hidden sm:inline">Filters</span>
-            </button>
-        </div>
-
-        <!-- Mobile Filter Modal -->
-        <div id="mobileFilterModal" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-            <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl p-6 max-h-[80vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold text-gray-800">Filters & Sort</h2>
-                    <button id="closeMobileFilter" class="text-gray-500 hover:text-gray-700">
-                        <i class="ri-close-line text-2xl"></i>
-                    </button>
-                </div>
-
-                <!-- Mobile Sort -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Sort By</h3>
-                    <form action="/shop">
-                        <select class="w-full border-2 border-gray-200 rounded-lg px-4 py-3 bg-white" name="sortby"
-                            onchange="this.form.submit()">
+            <div class="hidden lg:flex lg:w-[20%] h-fit flex-col items-start pr-6">
+                <!-- Sort Section -->
+                <div class="w-full mb-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="ri-sort-desc text-gray-600"></i>
+                        <h3 class="text-lg font-semibold text-gray-800">Sort By</h3>
+                    </div>
+                    <form action="/shop" class="w-full">
+                        <select
+                            class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 bg-white focus:border-yellow-400 focus:outline-none transition-colors duration-200"
+                            name="sortby" onchange="this.form.submit()">
                             <option value="popular">Popular</option>
                             <option value="newest">Newest</option>
                             <option value="price-low">Price: Low to High</option>
@@ -106,83 +23,149 @@
                     </form>
                 </div>
 
-                <!-- Mobile Categories -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Categories</h3>
-                    <div class="space-y-2">
-                        <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                <!-- Categories Section -->
+                <div class="w-full mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="ri-list-check text-gray-600"></i>
+                        Categories
+                    </h3>
+                    <div class="space-y-3">
+                        <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 font-medium"
                             href="">New Collection</a>
-                        <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                        <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
                             href="">All Products</a>
-                        <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                        <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
                             href="">Discounted Products</a>
                     </div>
                 </div>
 
-                <!-- Mobile Filters -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Filters</h3>
-                    <div class="space-y-2">
-                        <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                <!-- Filters Section -->
+                <div class="w-full">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="ri-filter-3-line text-gray-600"></i>
+                        Filters
+                    </h3>
+                    <div class="space-y-3">
+                        <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
                             href="">Availability</a>
-                        <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                        <a class="block w-full py-2 px-3 rounded-lg hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
                             href="">Discount</a>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="w-full lg:w-[80%] flex flex-col gap-5 h-auto overflow-y-auto pb-10">
-            <!-- Products Grid Container -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:p-0">
+            <!-- Mobile Filter Button -->
+            <div class="lg:hidden fixed bottom-[5vw] right-[5vw] z-50">
+                <button id="mobileFilterBtn"
+                    class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-3 px-4 rounded-full shadow-lg transition-all duration-200 flex items-center gap-2">
+                    <i class="ri-filter-3-line"></i>
+                    <span class="hidden sm:inline">Filters</span>
+                </button>
+            </div>
 
-                <!-- Product Card -->
-                <% products.forEach((product)=> { %>
-                    <div
-                        class="w-full max-w-sm mx-auto rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 product-card"
-                        style="--bg-color: <%= product.bgcolor %>; --text-color: <%= product.textcolor %>; --panel-color: <%= product.panelcolor %>; background-color: var(--bg-color);">
-                        <!-- Product Image -->
-                        <div
-                            class="w-full h-48 md:h-64 flex items-center justify-center relative" style="background-color: var(--bg-color);">
-                            <img class="w-2/3 h-full object-contain hover:scale-105 transition-transform duration-300"
-                                src="data:image/jpeg;base64,<%= product.image.toString('base64') %>" alt="Product Image">
-                        </div>
+            <!-- Mobile Filter Modal -->
+            <div id="mobileFilterModal" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+                <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl p-6 max-h-[80vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800">Filters & Sort</h2>
+                        <button id="closeMobileFilter" class="text-gray-500 hover:text-gray-700">
+                            <i class="ri-close-line text-2xl"></i>
+                        </button>
+                    </div>
 
-                        <!-- Product Info -->
-                        <div class="p-4" style="background-color: var(--panel-color);">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <h3 class="text-base md:text-lg font-semibold capitalize line-clamp-1 mb-1"
-                                        style="color: var(--text-color);">
-                                        <%= product.name %>
-                                    </h3>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-lg md:text-xl font-bold"
-                                              style="color: var(--text-color);">
-                                            ₹<%= product.price %>
-                                        </span>
-                                        <% if (product.discount > 0) { %>
-                                            <span class="ml-2 inline-flex items-center px-[6px] py-[2px] rounded-full text-[12px] font-semibold bg-white text-red-500 shadow-sm">
-                                                -₹<%= product.discount %>
-                                            </span>
-                                        <% } %>
-                                    </div>
-                                </div>
-                                <!-- Add to Cart Button -->
-                                <a href="/addtocart/<%= product._id %>"
-                                    class="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full bg-white hover:bg-gray-100 transition-colors duration-200 shadow-md ml-3">
-                                    <i class="ri-add-line text-lg" style="color: var(--text-color);"></i>
-                                </a>
-                            </div>
+                    <!-- Mobile Sort -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Sort By</h3>
+                        <form action="/shop">
+                            <select class="w-full border-2 border-gray-200 rounded-lg px-4 py-3 bg-white" name="sortby"
+                                onchange="this.form.submit()">
+                                <option value="popular">Popular</option>
+                                <option value="newest">Newest</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                            </select>
+                        </form>
+                    </div>
+
+                    <!-- Mobile Categories -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Categories</h3>
+                        <div class="space-y-2">
+                            <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                                href="">New Collection</a>
+                            <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                                href="">All Products</a>
+                            <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                                href="">Discounted Products</a>
                         </div>
                     </div>
 
-                    <% }) %>
+                    <!-- Mobile Filters -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Filters</h3>
+                        <div class="space-y-2">
+                            <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                                href="">Availability</a>
+                            <a class="block w-full py-3 px-4 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200"
+                                href="">Discount</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="w-full lg:w-[80%] flex flex-col gap-5 h-auto overflow-y-auto pb-10">
+                <!-- Products Grid Container -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:p-0">
+
+                    <!-- Product Card -->
+                    <% products.forEach((product)=> { %>
+                        <div class="w-full max-w-sm mx-auto rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 product-card"
+                            style="--bg-color: <%= product.bgcolor %>; --text-color: <%= product.textcolor %>; --panel-color: <%= product.panelcolor %>; background-color: var(--bg-color);">
+                            <!-- Product Image -->
+                            <div class="w-full h-48 md:h-64 flex items-center justify-center relative"
+                                style="background-color: var(--bg-color);">
+                                <img class="w-2/3 h-full object-contain hover:scale-105 transition-transform duration-300"
+                                    src="data:image/jpeg;base64,<%= product.image.toString('base64') %>"
+                                    alt="Product Image">
+                            </div>
+
+                            <!-- Product Info -->
+                            <div class="p-4" style="background-color: var(--panel-color);">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <h3 class="text-base md:text-lg font-semibold capitalize line-clamp-1 mb-1"
+                                            style="color: var(--text-color);">
+                                            <%= product.name %>
+                                        </h3>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-lg md:text-xl font-bold"
+                                                style="color: var(--text-color);">
+                                                ₹<%= product.price %>
+                                            </span>
+                                            <% if (product.discount> 0) { %>
+                                                <span
+                                                    class="ml-2 inline-flex items-center px-[6px] py-[2px] rounded-full text-[12px] font-semibold bg-white text-red-500 shadow-sm">
+                                                    -₹<%= product.discount %>
+                                                </span>
+                                                <% } %>
+                                        </div>
+                                    </div>
+                                    <!-- Add to Cart Button -->
+                                    <a href="/addtocart/<%= product._id %>"
+                                        class="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full bg-white hover:bg-gray-100 transition-colors duration-200 shadow-md ml-3">
+                                        <i class="ri-add-line text-lg" style="color: var(--text-color);"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% }) %>
+
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="/javascripts/shop.js"></script>
+        <script src="/javascripts/shop.js"></script>
+        <script src="/javascripts/flashMessage.js"></script>
 
-    <%- include('./partials/footer') %>
+        <%- include('./partials/footer') %>

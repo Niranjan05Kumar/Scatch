@@ -16,6 +16,7 @@
     --color-red-600: oklch(57.7% 0.245 27.325);
     --color-red-700: oklch(50.5% 0.213 27.518);
     --color-red-800: oklch(44.4% 0.177 26.899);
+    --color-red-900: oklch(39.6% 0.141 25.723);
     --color-amber-200: oklch(92.4% 0.12 95.746);
     --color-amber-300: oklch(87.9% 0.169 91.605);
     --color-amber-400: oklch(82.8% 0.189 84.429);
@@ -27,6 +28,7 @@
     --color-yellow-400: oklch(85.2% 0.199 91.936);
     --color-yellow-500: oklch(79.5% 0.184 86.047);
     --color-yellow-600: oklch(68.1% 0.162 75.834);
+    --color-yellow-700: oklch(55.4% 0.135 66.442);
     --color-yellow-800: oklch(47.6% 0.114 61.907);
     --color-green-100: oklch(96.2% 0.044 156.743);
     --color-green-200: oklch(92.5% 0.084 155.995);
@@ -36,13 +38,17 @@
     --color-green-600: oklch(62.7% 0.194 149.214);
     --color-green-700: oklch(52.7% 0.154 150.069);
     --color-green-800: oklch(44.8% 0.119 151.328);
+    --color-green-900: oklch(39.3% 0.095 152.535);
     --color-blue-50: oklch(97% 0.014 254.604);
     --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-200: oklch(88.2% 0.059 254.128);
+    --color-blue-300: oklch(80.9% 0.105 251.813);
     --color-blue-400: oklch(70.7% 0.165 254.624);
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-700: oklch(48.8% 0.243 264.376);
+    --color-blue-800: oklch(42.4% 0.199 265.638);
+    --color-blue-900: oklch(37.9% 0.146 265.522);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
@@ -764,6 +770,9 @@
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
   }
+  .border-blue-300 {
+    border-color: var(--color-blue-300);
+  }
   .border-gray-50 {
     border-color: var(--color-gray-50);
   }
@@ -776,11 +785,20 @@
   .border-gray-300 {
     border-color: var(--color-gray-300);
   }
+  .border-green-300 {
+    border-color: var(--color-green-300);
+  }
   .border-green-400 {
     border-color: var(--color-green-400);
   }
+  .border-red-300 {
+    border-color: var(--color-red-300);
+  }
   .border-red-400 {
     border-color: var(--color-red-400);
+  }
+  .border-yellow-300 {
+    border-color: var(--color-yellow-300);
   }
   .border-zinc-200 {
     border-color: var(--color-zinc-200);
@@ -802,6 +820,9 @@
   }
   .bg-blue-50 {
     background-color: var(--color-blue-50);
+  }
+  .bg-blue-100 {
+    background-color: var(--color-blue-100);
   }
   .bg-blue-200 {
     background-color: var(--color-blue-200);
@@ -1043,6 +1064,9 @@
   .text-blue-700 {
     color: var(--color-blue-700);
   }
+  .text-blue-800 {
+    color: var(--color-blue-800);
+  }
   .text-gray-300 {
     color: var(--color-gray-300);
   }
@@ -1087,6 +1111,12 @@
   }
   .text-yellow-500 {
     color: var(--color-yellow-500);
+  }
+  .text-yellow-600 {
+    color: var(--color-yellow-600);
+  }
+  .text-yellow-700 {
+    color: var(--color-yellow-700);
   }
   .text-zinc-400 {
     color: var(--color-zinc-400);
@@ -1353,6 +1383,13 @@
       }
     }
   }
+  .hover\:text-blue-900 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-blue-900);
+      }
+    }
+  }
   .hover\:text-gray-700 {
     &:hover {
       @media (hover: hover) {
@@ -1360,10 +1397,31 @@
       }
     }
   }
+  .hover\:text-green-900 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-green-900);
+      }
+    }
+  }
+  .hover\:text-red-700 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-red-700);
+      }
+    }
+  }
   .hover\:text-red-800 {
     &:hover {
       @media (hover: hover) {
         color: var(--color-red-800);
+      }
+    }
+  }
+  .hover\:text-red-900 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-red-900);
       }
     }
   }
@@ -1378,6 +1436,13 @@
     &:hover {
       @media (hover: hover) {
         color: var(--color-yellow-600);
+      }
+    }
+  }
+  .hover\:text-yellow-700 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-yellow-700);
       }
     }
   }

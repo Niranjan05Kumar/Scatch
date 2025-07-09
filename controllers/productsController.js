@@ -1,3 +1,5 @@
+
+const userModel = require("../models/user-model");
 const productModel = require("../models/product-model");
 
 
@@ -41,4 +43,13 @@ module.exports.deleteProduct =  async (req, res) => {
     req.flash("error", "Failed to delete product");
     res.redirect("/owners");
   }
+}
+
+module.exports.removeFromCart = async (req, res) => {
+    let user = await userModel.findOne({ email: req.user.email }).select("-password");
+    
+    user.cart = user.cart.filter((item) => item._id.toString() !== req.params.productId);
+    await user.save();
+    req.flash("success", "Product removed from cart successfully");
+    res.redirect("/cart");
 }

@@ -1,0 +1,65 @@
+<% if(typeof success !=='undefined' && success.length> 0){ %>
+    <div id="successFlash"
+        class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-green-200 text-green-800 border-2 border-green-300 shadow-lg z-50">
+        <div class="flex items-center justify-between">
+            <span class="inline-block mt-1 mb-1">
+                <i class="fa-solid fa-check mr-2"></i>
+                <strong>Success:</strong>
+                <%= success %>
+            </span>
+            <button id="closeSuccessFlash" class="ml-3 text-green-800 hover:text-green-900 focus:outline-none">
+                <i class="ri-close-fill text-xl font-bold"></i>
+            </button>
+        </div>
+    </div>
+    <% } %>
+
+        <% if(typeof error !=='undefined' && error.length> 0){ %>
+            <div id="errorFlash"
+                class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-red-200 text-red-800 border-2 border-red-300 shadow-lg z-50">
+                <div class="flex items-center justify-between">
+                    <span class="inline-block mt-1 mb-1">
+                        <i class="fa-solid fa-exclamation-triangle mr-2"></i>
+                        <strong>Error:</strong>
+                        <%= error %>
+                    </span>
+                    <button id="closeErrorFlash" class="ml-3 text-red-800 hover:text-red-900 focus:outline-none">
+                        <i class="ri-close-fill text-xl font-bold"></i>
+                    </button>
+                </div>
+            </div>
+            <% } %>
+
+                <% if(typeof warning !=='undefined' && warning.length> 0){ %>
+                    <div id="warningFlash"
+                        class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-yellow-100 text-yellow-600 border-2 border-yellow-300 shadow-lg z-50">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-block mt-1 mb-1">
+                                <i class="fa-solid fa-exclamation-triangle mr-2"></i>
+                                <strong>Warning:</strong>
+                                <%= warning %>
+                            </span>
+                            <button id="closeWarningFlash"
+                                class="ml-3 text-yellow-600 hover:text-yellow-700 focus:outline-none">
+                                <i class="ri-close-fill text-xl font-bold"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <% } %>
+
+                        <% if(typeof info !=='undefined' && info.length> 0){ %>
+                            <div id="infoFlash"
+                                class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-blue-100 text-blue-800 border-2 border-blue-300 shadow-lg z-50">
+                                <div class="flex items-center justify-between">
+                                    <span class="inline-block mt-1 mb-1">
+                                        <i class="fa-solid fa-info-circle mr-2"></i>
+                                        <strong>Info:</strong>
+                                        <%= info %>
+                                    </span>
+                                    <button id="closeInfoFlash"
+                                        class="ml-3 text-blue-800 hover:text-blue-900 focus:outline-none">
+                                        <i class="ri-close-fill text-xl font-bold"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <% } %>

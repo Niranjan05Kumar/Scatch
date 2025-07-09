@@ -36,11 +36,13 @@ router.get("/cart", isLoggedIn, async (req, res) => {
   let user = await userModel
     .findOne({ email: req.user.email })
     .populate("cart");
-  res.render("cart", { user });
+
+    let success = req.flash("success");
+  res.render("cart", { user, success });
 });
 
 router.get("/account", isLoggedIn, async (req, res) => {
-  let user = await userModel.findById(req.user._id);  // Use ID instead of email
+  let user = await userModel.findById(req.user._id);
   let success = req.flash("success");
   res.render("account", { user, success });
 });
