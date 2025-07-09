@@ -1,0 +1,104 @@
+<%- include('./partials/header') %>
+
+    <% if(success.length>0){ %>
+        <div
+            class="fixed top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 py-2 px-4 rounded-md bg-green-200 text-green-800">
+                <span class="inline-block mt-1 mb-1">
+                    <i class="fa-solid fa-check mr-2"></i>
+                    <strong>Success:</strong>
+                    <%= success %>
+                </span>
+        </div>
+    <% } %>
+
+    <div class="container mx-auto my-10 px-4">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md lg:max-w-lg">
+                <div class="bg-gray-300 rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6">
+                        <div class="text-center mb-6">
+                            <div class="mb-4 w-30 h-30 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
+                                <img src="<%= user.picture %>" alt="ProfilePicture" class="h-full w-full object-cover">
+                            </div>
+                            <h4 class="text-2xl font-semibold mb-1">
+                                <%= user.fullname %>
+                            </h4>
+                            <p class="text-gray-500">Member since <%= new Date(user.date).toLocaleDateString('en-US', {
+                                    year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+                            </p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex py-2 border-b border-gray-50">
+                                <div class="w-1/3">
+                                    <strong class="font-medium">Name:</strong>
+                                </div>
+                                <div class="w-2/3">
+                                    <%= user.fullname %>
+                                </div>
+                            </div>
+
+                            <div class="flex py-2 border-b border-gray-50">
+                                <div class="w-1/3">
+                                    <strong class="font-medium">Email:</strong>
+                                </div>
+                                <div class="w-2/3">
+                                    <%= user.email.substring(0, 2) + '*' .repeat(user.email.indexOf('@') - 2) +
+                                        user.email.substring(user.email.indexOf('@')) %>
+                                </div>
+                            </div>
+
+                            <div class="flex py-2">
+                                <div class="w-1/3">
+                                    <strong class="font-medium">Contact:</strong>
+                                </div>
+                                <div class="w-2/3">
+                                    <%= user.contact %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-6 flex justify-start items-center gap-2">
+                            <button>
+                                <a class="inline-block bg-blue-500 hover:bg-blue-400 text-white font-medium py-2 px-5 rounded-lg transition-colors duration-200"
+                                    href="/users/edit">Edit Profile</a>
+                            </button>
+                            <button id="logoutBtn"
+                                class="cursor-pointer bg-red-500 hover:bg-red-400 text-white font-medium py-2 px-5 rounded-lg transition-colors duration-200">
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Toast -->
+    <div id="logoutToast" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="bg-blue-400 rounded-lg shadow-xl p-6 mx-4 max-w-sm w-full transform transition-all duration-200">
+            <div class="text-center">
+                <div class="mb-4">
+                    <i class="ri-question-line text-4xl text-yellow-500"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Are you sure?</h3>
+                <p class="text-gray-600 mb-6">Do you really want to logout? You'll need to login again to access your
+                    account.</p>
+
+                <div class="flex gap-3 justify-center">
+                    <button id="cancelLogout"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors duration-200">
+                        Cancel
+                    </button>
+                    <a href="/users/logout"
+                        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors duration-200">
+                        Confirm Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/javascripts/logoutConfirm.js"></script>
+
+    <%- include('./partials/footer') %>

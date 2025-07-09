@@ -1,36 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const productModel = require("../models/product-model");
 const upload = require("../config/multer-config");
+const { createProduct, deleteProduct } = require("../controllers/productsController");
 
-router.post("/create", upload.single("image"), async (req, res) => {
-  try {
-    const { name, price, discount, bgcolor, panelcolor, textcolor } = req.body;
-    if(!req.file) {
-      req.flash("error", "Image is required");
-      return res.redirect("/owners/admin");
-    }
-    if(!name || !price) {
-      req.flash("error", "Name and price are required");
-      return res.redirect("/owners/admin");
-    }
+router.post("/create", upload.single("image"), createProduct);
 
-    let product = await productModel.create({
-      image: req.file.buffer,
-      name,
-      price,
-      discount,
-      bgcolor,
-      panelcolor,
-      textcolor,
-    });
-
-    req.flash("success", "Product created successfully");
-    res.redirect("/owners/admin");
-  } catch (err) {
-    req.flash("error", "Failed to create product");
-    res.redirect("/owners/admin");
-  }
-});
+router.get("/delete/:productId", deleteProduct);
 
 module.exports = router;

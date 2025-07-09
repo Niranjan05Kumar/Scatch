@@ -1,6 +1,7 @@
 const userModel = require("../models/user-model");
 const { generateToken } = require("../utils/generateToken");
 const { hashPassword, comparePassword } = require("../utils/hashPassword");
+const uploadProfile = require("../config/multer-profile");
 
 module.exports.registerUser = async (req, res) => {
   try {
@@ -34,6 +35,7 @@ module.exports.registerUser = async (req, res) => {
   }
 };
 
+
 module.exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -64,6 +66,7 @@ module.exports.loginUser = async (req, res) => {
   }
 };
 
+
 module.exports.logoutUser = (req, res) => {
   try {
     res.clearCookie("token");
@@ -73,3 +76,43 @@ module.exports.logoutUser = (req, res) => {
     return res.redirect("/");
   }
 };
+
+
+module.exports.updateProfile =  (req, res) => {
+  uploadProfile.single('picture')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        req.flash('error', 'File size too large! Maximum size allowed is 10MB.');
+      } else if (err.message.includes('Only image files')) {
+        req.flash('error', 'Only image files (JPEG, JPG, PNG, WEBP, GIF) are allowed!');
+      } else {
+        req.flash('error', 'Error uploading file: ' + err.message);
+      }
+      return res.redirect('/users/edit');
+    }
+    updateProfile(req, res);
+  });
+}
+async function updateProfile(req, res) {
+  try {
+    let { fullname, contact } = req.body;
+    let picture = req.file ? `/images/uploads/profiles/${req.file.filename}` : req.user.picture;
+    
+    let user = await userModel.findOneAndUpdate(
+      {email: req.user.email},
+      {
+        fullname,
+        contact,
+        picture,
+      },
+      {
+        new: true,
+      }
+    );
+    req.flash("success", "Profile updated successfully!");
+    res.redirect("/account");
+  } catch (error) {
+    req.flash("error", "An error occurred while updating the profile: " + error.message);
+    res.redirect("/users/edit");
+  }
+}
