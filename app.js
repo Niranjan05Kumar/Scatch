@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const port = process.env.PORT || 3000;
 
 const db = require("./config/mongoose-connection");
 const ownerRouter = require("./routes/ownerRouter");
@@ -34,4 +35,4 @@ app.use("/owners", ownerRouter);
 app.use("/users", userRouter);
 app.use("/products", productRouter);
 
-app.listen(3000);
+app.listen(port);
