@@ -7,12 +7,17 @@
     "build-css": "npx @tailwindcss/cli -i ./public/stylesheets/input.css -o ./public/stylesheets/output.css",
     "watch-css": "npx @tailwindcss/cli -i ./public/stylesheets/input.css -o ./public/stylesheets/output.css --watch",
     "dev": "npm run watch-css & nodemon app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "build": "npm run build-css",
+    "postinstall": "npm run build-css"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.11",
     "bcrypt": "^6.0.0",
