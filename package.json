@@ -7,7 +7,7 @@
     "build-css": "npx @tailwindcss/cli -i ./public/stylesheets/input.css -o ./public/stylesheets/output.css",
     "watch-css": "npx @tailwindcss/cli -i ./public/stylesheets/input.css -o ./public/stylesheets/output.css --watch",
     "dev": "npm run watch-css & nodemon app.js",
-    "start": "nodemon app.js"
+    "start": "node app.js"
   },
   "keywords": [],
   "author": "",
