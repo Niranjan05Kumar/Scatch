@@ -3,8 +3,8 @@ const router = express.Router();
 const ownerModel = require("../models/owner-model");
 const productModel = require("../models/product-model");
 
-if (process.env.NODE_ENV === "development") {
-  router.post("/create", async (req, res) => {
+// Allow owner creation in all environments
+router.post("/create", async (req, res) => {
     const { fullname, email, password } = req.body;
 
     const ownerExists = await ownerModel.find();
@@ -31,8 +31,8 @@ if (process.env.NODE_ENV === "development") {
     });
   });
 
-  router.get("/", async (req, res) => {
-    let error = req.flash("error");
+router.get("/", async (req, res) => {
+  let error = req.flash("error");
     let success = req.flash("success");
     let products = await productModel.find();
     res.render("admin", {
@@ -56,6 +56,5 @@ if (process.env.NODE_ENV === "development") {
       activeTab: "create-product",
     });
   });
-}
 
 module.exports = router;
