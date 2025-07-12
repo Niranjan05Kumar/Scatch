@@ -7,6 +7,7 @@ const ownerRouter = require("./routes/ownerRouter");
 const userRouter = require("./routes/userRouter");
 const productRouter = require("./routes/productRouter");
 const indexRouter = require("./routes/index");
+const dbViewRouter = require("./routes/dbViewRouter");
 
 const cookieParser = require("cookie-parser");
 const ejs = require("ejs");
@@ -34,5 +35,6 @@ app.use("/", indexRouter);
 app.use("/owners", ownerRouter);
 app.use("/users", userRouter);
 app.use("/products", productRouter);
+app.use("/db-view", dbViewRouter); // Database viewing route
 
 app.listen(port);

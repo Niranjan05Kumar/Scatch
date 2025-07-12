@@ -51,7 +51,20 @@ npm start
 - Make sure the Procfile exists with: `web: npm start`
 
 ## Post-Deployment
-After deployment, you might want to:
-1. Create an owner account through the admin interface
-2. Add initial products
-3. Test the user registration and shopping features
+After deployment, follow these steps:
+
+1. Create the first admin account:
+   ```
+   npm run setup-admin
+   ```
+   This will create an admin account with:
+   - Email: admin@example.com
+   - Password: admin123
+
+2. Login to the admin panel at `/ownerlogin` with these credentials
+
+3. Add initial products through the admin interface
+
+4. Test the user registration and shopping features
+
+**Security Note:** In a production environment, change the default admin password after the first login.

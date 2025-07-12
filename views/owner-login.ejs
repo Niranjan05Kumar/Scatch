@@ -2,11 +2,8 @@
     <%- include('./partials/flashMessage') %>
         <div class="w-full md:w-1/2 px-[5vw] sm:px-5 mt-20 sm:mt-0 mx-auto flex items-center justify-center h-auto">
             <div class="w-full">
-                <h4 class="text-xl capitalize mb-5">Create your account</h4>
-                <form autocomplete="off" action="/owners/create" method="post">
-                    <input
-                        class="block bg-zinc-100 w-full px-3 py-2 border-[1px] rounded-md mb-3 border-zinc-200 outline-blue-500"
-                        type="text" placeholder="Fullname" name="fullname">
+                <h4 class="text-xl capitalize mb-5">Owner Login</h4>
+                <form autocomplete="off" action="/owners/login" method="post">
                     <input
                         class="block bg-zinc-100 w-full px-3 py-2 border-[1px] rounded-md mb-3 border-zinc-200 outline-blue-500"
                         type="email" placeholder="Email" name="email">

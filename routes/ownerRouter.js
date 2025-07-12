@@ -3,33 +3,52 @@ const router = express.Router();
 const ownerModel = require("../models/owner-model");
 const productModel = require("../models/product-model");
 
-// Allow owner creation in all environments
-router.post("/create", async (req, res) => {
-    const { fullname, email, password } = req.body;
-
-    const ownerExists = await ownerModel.find();
-    if (ownerExists.length > 0) {
-      req.flash("error", "You don't have permission to create an owner");
+// Single simple login route for owners
+router.post("/login", async (req, res) => {
+  try {
+    console.log("Owner login attempt with:", req.body);
+    const { email, password } = req.body;
+    
+    // Find the owner by email
+    const owner = await ownerModel.findOne({ email });
+    console.log("Owner found:", owner ? "Yes" : "No");
+    
+    if (!owner) {
+      console.log("No owner found with email:", email);
+      req.flash("error", "Invalid email or password");
       return res.redirect("/ownerlogin");
     }
-
-    const createdOwner = await ownerModel.create({
-      fullname,
-      email,
-      password,
-    });
-    let error = req.flash("error");
-    let success = req.flash("success");
-    let products = await productModel.find();
-    req.flash("success", "Owner created successfully");
+    
+    // Simple password check (plain text comparison)
+    if (password !== owner.password) {
+      console.log("Password mismatch for:", email);
+      req.flash("error", "Invalid email or password");
+      return res.redirect("/ownerlogin");
+    }
+    
+    // Success - fetch products and render admin page
+    console.log("Login successful for owner:", email);
+    const products = await productModel.find();
+    
+    req.flash("success", "Login successful");
     return res.render("admin", {
-      success,
-      error,
+      error: req.flash("error"),
+      success: req.flash("success"),
       products,
-      loggedIn: false,
+      loggedIn: true,
       activeTab: "all-products",
     });
-  });
+  } catch (err) {
+    console.error("Login error:", err);
+    req.flash("error", "An error occurred: " + err.message);
+    return res.redirect("/ownerlogin");
+  }
+});
+
+// Legacy create route - just redirect to login page
+router.post("/create", async (req, res) => {
+  return res.redirect("/ownerlogin");
+});
 
 router.get("/", async (req, res) => {
   let error = req.flash("error");
