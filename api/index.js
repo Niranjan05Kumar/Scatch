@@ -186,11 +186,43 @@ app.get('/shop', async (req, res) => {
 
 app.get('/cart', async (req, res) => {
   try {
-    res.render('cart', { 
-      user: req.session.user || null,
-      success: req.flash('success')
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+    const productModel = require("../models/product-model");
+
+    const userId = req.session.user?._id;
+
+    if (!userId) {
+      req.flash('error', 'Please login to view cart');
+      return res.redirect('/');
+    }
+
+    const user = await userModel.findById(userId).populate('cart.productId');
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/');
+    }
+
+    // Calculate total
+    let total = 0;
+    user.cart.forEach(item => {
+      if (item.productId) {
+        total += (item.productId.price - item.productId.discount + 20) * item.quantity;
+      }
+    });
+
+    res.render('cart', {
+      user: user,
+      cartItems: user.cart,
+      total: total,
+      success: req.flash('success'),
+      error: req.flash('error')
     });
   } catch (error) {
+    console.error('Cart error:', error);
     res.status(500).json({ error: 'Failed to load cart page' });
   }
 });
@@ -256,6 +288,178 @@ app.get('/users/logout', (req, res) => {
   req.session.destroy();
   req.flash('success', 'Logged out successfully!');
   res.redirect('/');
+});
+
+// User edit route
+app.get('/users/edit', async (req, res) => {
+  try {
+    res.render('userEdit', {
+      user: req.session.user || null,
+      error: req.flash('error'),
+      success: req.flash('success')
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load user edit page' });
+  }
+});
+
+// Shop discounted route
+app.get('/shop/discounted', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const productModel = require("../models/product-model");
+    
+    // Find products with discount
+    const discountedProducts = await productModel.find({ 
+      discount: { $gt: 0 } 
+    });
+
+    res.render('shop', {
+      user: req.session.user || null,
+      products: discountedProducts,
+      warning: req.flash('warning'),
+      success: req.flash('success'),
+      activeTab: "discounted"
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load discounted products' });
+  }
+});
+
+// Add to cart route
+app.get('/addtocart/:productId', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const productModel = require("../models/product-model");
+    const userModel = require("../models/user-model");
+
+    const { productId } = req.params;
+    const userId = req.session.user?._id;
+
+    if (!userId) {
+      req.flash('error', 'Please login to add items to cart');
+      return res.redirect('/');
+    }
+
+    // Find product
+    const product = await productModel.findById(productId);
+    if (!product) {
+      req.flash('error', 'Product not found');
+      return res.redirect('/shop');
+    }
+
+    // Find user and add to cart
+    const user = await userModel.findById(userId);
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/');
+    }
+
+    // Check if product already in cart
+    const existingCartItem = user.cart.find(item => item.productId.toString() === productId);
+    
+    if (existingCartItem) {
+      existingCartItem.quantity += 1;
+    } else {
+      user.cart.push({
+        productId: productId,
+        quantity: 1,
+        price: product.price
+      });
+    }
+
+    await user.save();
+    req.flash('success', 'Product added to cart successfully!');
+    res.redirect('/cart');
+  } catch (error) {
+    console.error('Add to cart error:', error);
+    req.flash('error', 'Failed to add product to cart');
+    res.redirect('/shop');
+  }
+});
+
+// Remove from cart route
+app.get('/removefromcart/:productId', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+
+    const { productId } = req.params;
+    const userId = req.session.user?._id;
+
+    if (!userId) {
+      req.flash('error', 'Please login to manage cart');
+      return res.redirect('/');
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/');
+    }
+
+    // Remove product from cart
+    user.cart = user.cart.filter(item => item.productId.toString() !== productId);
+    await user.save();
+
+    req.flash('success', 'Product removed from cart');
+    res.redirect('/cart');
+  } catch (error) {
+    console.error('Remove from cart error:', error);
+    req.flash('error', 'Failed to remove product from cart');
+    res.redirect('/cart');
+  }
+});
+
+// Update cart quantity route
+app.post('/updatecart/:productId', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+
+    const { productId } = req.params;
+    const { quantity } = req.body;
+    const userId = req.session.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Please login to update cart' });
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const cartItem = user.cart.find(item => item.productId.toString() === productId);
+    if (!cartItem) {
+      return res.status(404).json({ error: 'Product not found in cart' });
+    }
+
+    if (quantity <= 0) {
+      // Remove item if quantity is 0 or negative
+      user.cart = user.cart.filter(item => item.productId.toString() !== productId);
+    } else {
+      cartItem.quantity = parseInt(quantity);
+    }
+
+    await user.save();
+    res.json({ success: true, message: 'Cart updated successfully' });
+  } catch (error) {
+    console.error('Update cart error:', error);
+    res.status(500).json({ error: 'Failed to update cart' });
+  }
 });
 
 // Test route
