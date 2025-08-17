@@ -35,15 +35,113 @@ app.use(
 );
 app.use(flash());
 
-// Test route
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Scatch App API working!', 
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
+// Serve frontend HTML
+app.get('/frontend', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
+// EJS View Routes
+app.get('/', async (req, res) => {
+  try {
+    res.render('index', { 
+      error: req.flash('error'),
+      success: req.flash('success'),
+      loggedIn: false 
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to render index page' });
+  }
+});
+
+app.get('/shop', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const productModel = require("../models/product-model");
+    const products = await productModel.find();
+    
+    res.render('shop', {
+      user: null, // Will be set when authentication is implemented
+      products: products,
+      warning: req.flash('warning'),
+      success: req.flash('success'),
+      activeTab: "all-products"
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load shop page' });
+  }
+});
+
+app.get('/cart', async (req, res) => {
+  try {
+    res.render('cart', { 
+      user: null, // Will be set when authentication is implemented
+      success: req.flash('success')
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load cart page' });
+  }
+});
+
+app.get('/account', async (req, res) => {
+  try {
+    res.render('account', { 
+      user: null, // Will be set when authentication is implemented
+      success: req.flash('success')
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load account page' });
+  }
+});
+
+app.get('/ownerlogin', async (req, res) => {
+  try {
+    res.render('owner-login', {
+      error: req.flash('error'),
+      success: req.flash('success'),
+      loggedIn: false
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load owner login page' });
+  }
+});
+
+app.get('/admin', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const productModel = require("../models/product-model");
+    const products = await productModel.find();
+    
+    res.render('admin', {
+      error: req.flash('error'),
+      success: req.flash('success'),
+      products: products,
+      loggedIn: false,
+      activeTab: "all-products"
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load admin page' });
+  }
+});
+
+app.get('/userEdit', async (req, res) => {
+  try {
+    res.render('userEdit', {
+      user: null, // Will be set when authentication is implemented
+      error: req.flash('error'),
+      success: req.flash('success')
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load user edit page' });
+  }
+});
+
+// Test route
 app.get('/test', (req, res) => {
   res.json({ 
     message: 'Test route working!', 
