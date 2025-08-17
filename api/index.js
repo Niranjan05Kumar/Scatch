@@ -528,27 +528,6 @@ app.post('/updatecart/:productId', async (req, res) => {
     res.json({ success: false, message: "Failed to update cart" });
   }
 });
-    }
-
-    const cartItem = user.cart.find(item => item.productId.toString() === productId);
-    if (!cartItem) {
-      return res.status(404).json({ error: 'Product not found in cart' });
-    }
-
-    if (quantity <= 0) {
-      // Remove item if quantity is 0 or negative
-      user.cart = user.cart.filter(item => item.productId.toString() !== productId);
-    } else {
-      cartItem.quantity = parseInt(quantity);
-    }
-
-    await user.save();
-    res.json({ success: true, message: 'Cart updated successfully' });
-  } catch (error) {
-    console.error('Update cart error:', error);
-    res.status(500).json({ error: 'Failed to update cart' });
-  }
-});
 
 // Test route
 app.get('/test', (req, res) => {
