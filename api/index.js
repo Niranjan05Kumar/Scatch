@@ -53,6 +53,116 @@ app.get('/', async (req, res) => {
   }
 });
 
+// Form handling routes for original EJS views
+app.post('/users/register', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+    
+    const { fullname, email, password } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      req.flash('error', 'User already exists with this email');
+      return res.redirect('/');
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create new user
+    const newUser = new userModel({
+      name: fullname,
+      email,
+      password: hashedPassword,
+      cart: []
+    });
+    
+    await newUser.save();
+    
+    req.flash('success', 'Registration successful! Please login.');
+    res.redirect('/');
+  } catch (error) {
+    console.error('Registration error:', error);
+    req.flash('error', 'Registration failed. Please try again.');
+    res.redirect('/');
+  }
+});
+
+app.post('/users/login', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+    
+    const { email, password } = req.body;
+    
+    // Find user
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      req.flash('error', 'Invalid email or password');
+      return res.redirect('/');
+    }
+    
+    // Check password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      req.flash('error', 'Invalid email or password');
+      return res.redirect('/');
+    }
+    
+    // Set user in session
+    req.session.user = user;
+    req.flash('success', 'Login successful!');
+    res.redirect('/shop');
+  } catch (error) {
+    console.error('Login error:', error);
+    req.flash('error', 'Login failed. Please try again.');
+    res.redirect('/');
+  }
+});
+
+app.post('/owners/login', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const ownerModel = require("../models/owner-model");
+    const productModel = require("../models/product-model");
+    
+    const { email, password } = req.body;
+    
+    // Find owner
+    const owner = await ownerModel.findOne({ email });
+    if (!owner) {
+      req.flash('error', 'Invalid email or password');
+      return res.redirect('/ownerlogin');
+    }
+    
+    // Check password (plain text comparison as per original code)
+    if (password !== owner.password) {
+      req.flash('error', 'Invalid email or password');
+      return res.redirect('/ownerlogin');
+    }
+    
+    // Set owner in session
+    req.session.owner = owner;
+    req.flash('success', 'Admin login successful!');
+    res.redirect('/admin');
+  } catch (error) {
+    console.error('Owner login error:', error);
+    req.flash('error', 'Admin login failed. Please try again.');
+    res.redirect('/ownerlogin');
+  }
+});
+
 app.get('/shop', async (req, res) => {
   try {
     const mongoose = require("mongoose");
@@ -63,7 +173,7 @@ app.get('/shop', async (req, res) => {
     const products = await productModel.find();
     
     res.render('shop', {
-      user: null, // Will be set when authentication is implemented
+      user: req.session.user || null,
       products: products,
       warning: req.flash('warning'),
       success: req.flash('success'),
@@ -77,7 +187,7 @@ app.get('/shop', async (req, res) => {
 app.get('/cart', async (req, res) => {
   try {
     res.render('cart', { 
-      user: null, // Will be set when authentication is implemented
+      user: req.session.user || null,
       success: req.flash('success')
     });
   } catch (error) {
@@ -88,7 +198,7 @@ app.get('/cart', async (req, res) => {
 app.get('/account', async (req, res) => {
   try {
     res.render('account', { 
-      user: null, // Will be set when authentication is implemented
+      user: req.session.user || null,
       success: req.flash('success')
     });
   } catch (error) {
@@ -121,7 +231,7 @@ app.get('/admin', async (req, res) => {
       error: req.flash('error'),
       success: req.flash('success'),
       products: products,
-      loggedIn: false,
+      loggedIn: req.session.owner ? true : false,
       activeTab: "all-products"
     });
   } catch (error) {
@@ -132,13 +242,20 @@ app.get('/admin', async (req, res) => {
 app.get('/userEdit', async (req, res) => {
   try {
     res.render('userEdit', {
-      user: null, // Will be set when authentication is implemented
+      user: req.session.user || null,
       error: req.flash('error'),
       success: req.flash('success')
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to load user edit page' });
   }
+});
+
+// Logout route
+app.get('/users/logout', (req, res) => {
+  req.session.destroy();
+  req.flash('success', 'Logged out successfully!');
+  res.redirect('/');
 });
 
 // Test route
