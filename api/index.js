@@ -320,9 +320,24 @@ app.get('/userEdit', async (req, res) => {
 
 // Logout route
 app.get('/users/logout', (req, res) => {
-  req.session.destroy();
-  req.flash('success', 'Logged out successfully!');
-  res.redirect('/');
+  try {
+    // Clear JWT cookie
+    res.clearCookie("token");
+    
+    // Destroy session
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destroy error:', err);
+      }
+    });
+    
+    req.flash('success', 'Logged out successfully!');
+    res.redirect('/');
+  } catch (error) {
+    console.error('Logout error:', error);
+    req.flash('error', 'Error during logout');
+    res.redirect('/');
+  }
 });
 
 // User edit route
