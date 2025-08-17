@@ -3,12 +3,14 @@ const app = express();
 
 // Basic middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Test route
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Scatch App API working!', 
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
   });
 });
 
@@ -23,7 +25,8 @@ app.get('/test', (req, res) => {
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -41,4 +44,5 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Export for Vercel
 module.exports = app; 
