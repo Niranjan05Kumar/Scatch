@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 
+// Load environment variables
+require("dotenv").config();
+
 // Basic middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,14 +24,59 @@ app.get('/test', (req, res) => {
   });
 });
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV,
-    mongoUri: process.env.MONGO_URI ? 'Set' : 'Not Set'
-  });
+// Health check with database test
+app.get('/health', async (req, res) => {
+  try {
+    // Try to connect to MongoDB
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    
+    res.json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV,
+      mongoUri: process.env.MONGO_URI ? 'Set' : 'Not Set',
+      database: dbStatus
+    });
+  } catch (error) {
+    res.json({ 
+      status: 'ERROR', 
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV,
+      mongoUri: process.env.MONGO_URI ? 'Set' : 'Not Set',
+      database: 'Connection Failed',
+      error: error.message
+    });
+  }
+});
+
+// Database test route
+app.get('/db-test', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    
+    // Test basic database operations
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    
+    res.json({ 
+      message: 'Database connection successful!', 
+      timestamp: new Date().toISOString(),
+      collections: collections.map(col => col.name),
+      connectionState: mongoose.connection.readyState
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Database connection failed', 
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // 404 handler
