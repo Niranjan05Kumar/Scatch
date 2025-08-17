@@ -4,9 +4,34 @@ const app = express();
 // Load environment variables
 require("dotenv").config();
 
+// Import required modules
+const cookieParser = require("cookie-parser");
+const ejs = require("ejs");
+const path = require("path");
+const session = require("express-session");
+const flash = require("connect-flash");
+
 // Basic middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Set view engine
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "../views"));
+
+// Static files
+app.use(express.static(path.join(__dirname, "../public")));
+
+// Session configuration
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: true,
+    secret: process.env.EXPRESS_SESSION_SECRET || "fallback-secret",
+  })
+);
+app.use(flash());
 
 // Test route
 app.get('/', (req, res) => {
@@ -58,6 +83,53 @@ app.get('/db-test', async (req, res) => {
       error: 'Database connection failed', 
       message: error.message,
       timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Simple API routes (without views for now)
+app.get('/api/products', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const productModel = require("../models/product-model");
+    const products = await productModel.find();
+    
+    res.json({ 
+      message: 'Products fetched successfully!', 
+      products: products,
+      count: products.length
+    });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch products', 
+      message: error.message
+    });
+  }
+});
+
+app.get('/api/users', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+    const users = await userModel.find().select('-password'); // Exclude password
+    
+    res.json({ 
+      message: 'Users fetched successfully!', 
+      users: users,
+      count: users.length
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch users', 
+      message: error.message
     });
   }
 });
