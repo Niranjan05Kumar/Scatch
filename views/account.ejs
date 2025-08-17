@@ -9,14 +9,14 @@
                             <div class="text-center mb-6">
                                 <div
                                     class="mb-4 w-[120px] h-[120px] rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
-                                    <img src="<%= user.picture %>" alt="ProfilePicture"
-                                        class="h-full w-full object-cover">
+                                    <img src="<%= user.picture || '/images/uploads/profiles/default-avatar.png' %>" alt="ProfilePicture"
+                                        class="h-full w-full object-cover" onerror="this.src='/images/uploads/profiles/default-avatar.png'">
                                 </div>
                                 <h4 class="text-2xl font-semibold mb-1">
-                                    <%= user.fullname %>
+                                    <%= user.fullname || 'User' %>
                                 </h4>
                                 <p class="text-gray-500">Member since <%= new
-                                        Date(user.date).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
+                                        Date(user.date || new Date()).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
                                         day: 'numeric' }) %>
                                 </p>
                             </div>
@@ -27,7 +27,7 @@
                                         <strong class="font-medium">Name:</strong>
                                     </div>
                                     <div class="w-2/3">
-                                        <%= user.fullname %>
+                                        <%= user.fullname || 'User' %>
                                     </div>
                                 </div>
 
@@ -36,8 +36,12 @@
                                         <strong class="font-medium">Email:</strong>
                                     </div>
                                     <div class="w-2/3">
-                                        <%= user.email.substring(0, 2) + '*' .repeat(user.email.indexOf('@') - 2) +
-                                            user.email.substring(user.email.indexOf('@')) %>
+                                        <% if (user.email && user.email.indexOf('@') > 2) { %>
+                                            <%= user.email.substring(0, 2) + '*'.repeat(user.email.indexOf('@') - 2) +
+                                                user.email.substring(user.email.indexOf('@')) %>
+                                        <% } else { %>
+                                            <%= user.email || 'No email provided' %>
+                                        <% } %>
                                     </div>
                                 </div>
 
@@ -46,7 +50,7 @@
                                         <strong class="font-medium">Contact:</strong>
                                     </div>
                                     <div class="w-2/3">
-                                        <%= user.contact %>
+                                        <%= user.contact || 'Not provided' %>
                                     </div>
                                 </div>
                             </div>

@@ -264,12 +264,58 @@ app.get('/cart', async (req, res) => {
 
 app.get('/account', async (req, res) => {
   try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+
+    // Check for JWT token first, then session
+    let user = null;
+    let userId = null;
+    
+    // Try JWT token authentication
+    const token = req.cookies.token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_KEY || "generatekaro");
+        user = await userModel.findOne({ email: decoded.email }).select("-password");
+        userId = user?._id;
+      } catch (jwtErr) {
+        console.log("JWT verification failed, trying session...");
+      }
+    }
+    
+    // Fallback to session authentication
+    if (!userId && req.session.user) {
+      userId = req.session.user._id;
+      user = await userModel.findById(userId).select("-password");
+    }
+
+    if (!userId || !user) {
+      req.flash('error', 'Please login to view your account');
+      return res.redirect('/');
+    }
+
+    // Ensure user has required properties with defaults
+    const accountUser = {
+      ...user.toObject(),
+      picture: user.picture || '/images/uploads/profiles/default-avatar.png',
+      fullname: user.fullname || 'User',
+      email: user.email || '',
+      contact: user.contact || 'Not provided',
+      date: user.date || new Date()
+    };
+
     res.render('account', { 
-      user: req.session.user || null,
-      success: req.flash('success')
+      user: accountUser,
+      success: req.flash('success'),
+      error: req.flash('error')
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to load account page' });
+    console.error('Account page error:', error);
+    req.flash('error', 'Error loading account page');
+    res.redirect('/');
   }
 });
 
