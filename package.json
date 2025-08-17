@@ -9,6 +9,7 @@
     "dev": "npm run watch-css & nodemon app.js",
     "start": "node app.js",
     "build": "npm run build-css",
+    "vercel-build": "npm run build-css",
     "postinstall": "npm run build-css",
     "setup-admin": "node setup-admin.js"
   },
