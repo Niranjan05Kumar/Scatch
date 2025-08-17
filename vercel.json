@@ -2,18 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "app-no-db.js",
+      "src": "api/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/app-no-db.js"
+      "dest": "/api/index.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "SUPPRESS_NO_CONFIG_WARNING": "true"
-  }
+  ]
 } 
