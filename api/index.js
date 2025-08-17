@@ -308,6 +308,13 @@ app.get('/account', async (req, res) => {
       date: user.date || new Date()
     };
 
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'Surrogate-Control': 'no-store'
+    });
+    
     res.render('account', { 
       user: accountUser,
       success: req.flash('success'),
@@ -368,21 +375,28 @@ app.get('/userEdit', async (req, res) => {
 // Logout route
 app.get('/users/logout', (req, res) => {
   try {
+    // Set flash message before destroying session
+    req.flash('success', 'Logged out successfully!');
+    
     // Clear JWT cookie
     res.clearCookie("token");
     
-    // Destroy session
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Session destroy error:', err);
+    // Save session before destroying (to ensure flash message is saved)
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        console.error('Session save error:', saveErr);
       }
+      
+      // Destroy session after flash message is saved
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Session destroy error:', err);
+        }
+        res.redirect('/');
+      });
     });
-    
-    req.flash('success', 'Logged out successfully!');
-    res.redirect('/');
   } catch (error) {
     console.error('Logout error:', error);
-    req.flash('error', 'Error during logout');
     res.redirect('/');
   }
 });
