@@ -5,6 +5,9 @@ const port = process.env.PORT || 3000;
 // Load environment variables first
 require("dotenv").config();
 
+// Database connection
+require("./config/mongoose-connection");
+
 // Import required modules
 const cookieParser = require("cookie-parser");
 const ejs = require("ejs");

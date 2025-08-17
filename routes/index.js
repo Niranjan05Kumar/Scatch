@@ -55,12 +55,67 @@ router.get("/addtocart/:productid", isLoggedIn, async (req, res) => {
 });
 
 router.get("/cart", isLoggedIn, async (req, res) => {
-  let user = await userModel
-    .findOne({ email: req.user.email })
-    .populate("cart");
+  try {
+    let user = await userModel
+      .findOne({ email: req.user.email })
+      .populate("cart");
 
-  let success = req.flash("success");
-  res.render("cart", { user, success });
+    let success = req.flash("success");
+    
+    // Create cartItems array with quantity property
+    let cartItems = [];
+    let total = 0;
+    
+    if (user.cart && user.cart.length > 0) {
+      cartItems = user.cart.map(product => {
+        const quantity = 1; // Default quantity, you can implement quantity tracking later
+        const itemTotal = (product.price + 20 - product.discount) * quantity;
+        total += itemTotal;
+        
+        return {
+          productId: product,
+          quantity: quantity
+        };
+      });
+    }
+    
+    res.render("cart", { user, success, cartItems, total });
+  } catch (err) {
+    console.error("Cart error:", err);
+    req.flash("error", "Error loading cart");
+    res.redirect("/shop");
+  }
+});
+
+router.post("/updatecart/:productId", isLoggedIn, async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    
+    if (quantity <= 0) {
+      return res.json({ success: false, message: "Invalid quantity" });
+    }
+    
+    // For now, we'll just return success since cart doesn't store quantity yet
+    // You can implement quantity storage in user model later
+    res.json({ success: true, message: "Quantity updated" });
+  } catch (err) {
+    console.error("Update cart error:", err);
+    res.json({ success: false, message: "Failed to update cart" });
+  }
+});
+
+router.get("/removefromcart/:productId", isLoggedIn, async (req, res) => {
+  try {
+    let user = await userModel.findOne({ email: req.user.email }).select("-password");
+    user.cart = user.cart.filter((item) => item._id.toString() !== req.params.productId);
+    await user.save();
+    req.flash("success", "Product removed from cart successfully");
+    res.redirect("/cart");
+  } catch (err) {
+    console.error("Remove from cart error:", err);
+    req.flash("error", "Failed to remove product from cart");
+    res.redirect("/cart");
+  }
 });
 
 router.get("/account", isLoggedIn, async (req, res) => {
