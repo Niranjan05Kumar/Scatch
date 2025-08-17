@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3000;
 
 // Load environment variables first
 require("dotenv").config();
@@ -38,10 +37,30 @@ app.use(
 );
 app.use(flash());
 
+// Test route
+app.get('/test', (req, res) => {
+  res.json({ message: 'App is working!', timestamp: new Date().toISOString() });
+});
+
 app.use("/", indexRouter);
 app.use("/owners", ownerRouter);
 app.use("/users", userRouter);
 app.use("/products", productRouter);
 app.use("/db-view", dbViewRouter); // Database viewing route
 
-app.listen(port);
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).send('Something broke!');
+});
+
+// For Vercel serverless functions
+module.exports = app;
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
