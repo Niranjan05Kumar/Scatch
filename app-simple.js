@@ -24,44 +24,41 @@ app.get('/test', (req, res) => {
   });
 });
 
-// Health check with database test
-app.get('/health', async (req, res) => {
-  try {
-    // Try to connect to MongoDB
-    const mongoose = require("mongoose");
-    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
-    
-    await mongoose.connect(mongoUri);
-    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
-    
-    res.json({ 
-      status: 'OK', 
-      timestamp: new Date().toISOString(),
-      env: process.env.NODE_ENV,
-      mongoUri: process.env.MONGO_URI ? 'Set' : 'Not Set',
-      database: dbStatus
-    });
-  } catch (error) {
-    res.json({ 
-      status: 'ERROR', 
-      timestamp: new Date().toISOString(),
-      env: process.env.NODE_ENV,
-      mongoUri: process.env.MONGO_URI ? 'Set' : 'Not Set',
-      database: 'Connection Failed',
-      error: error.message
-    });
-  }
+// Health check without database
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    mongoUri: process.env.MONGO_URI ? 'Set' : 'Not Set',
+    database: 'Not Tested'
+  });
 });
 
-// Database test route
+// Safe database test route
 app.get('/db-test', async (req, res) => {
   try {
     const mongoose = require("mongoose");
+    
+    // Check if already connected
+    if (mongoose.connection.readyState === 1) {
+      const collections = await mongoose.connection.db.listCollections().toArray();
+      return res.json({ 
+        message: 'Already connected to database!', 
+        timestamp: new Date().toISOString(),
+        collections: collections.map(col => col.name),
+        connectionState: 'Connected'
+      });
+    }
+    
+    // Try to connect
     const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
     
-    await mongoose.connect(mongoUri);
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 5000, // 5 second timeout
+      socketTimeoutMS: 45000,
+    });
     
-    // Test basic database operations
     const collections = await mongoose.connection.db.listCollections().toArray();
     
     res.json({ 
@@ -71,6 +68,7 @@ app.get('/db-test', async (req, res) => {
       connectionState: mongoose.connection.readyState
     });
   } catch (error) {
+    console.error('Database connection error:', error);
     res.status(500).json({ 
       error: 'Database connection failed', 
       message: error.message,

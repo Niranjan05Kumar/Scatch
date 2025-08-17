@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "app-simple.js",
+      "src": "app-no-db.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/app-simple.js"
+      "dest": "/app-no-db.js"
     }
   ],
   "env": {
