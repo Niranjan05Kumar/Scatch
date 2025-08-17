@@ -9,12 +9,29 @@ if (!process.env.MONGO_URI) {
   console.warn("WARNING: MONGO_URI environment variable not set!");
 }
 
-const db = require("./config/mongoose-connection");
-const ownerRouter = require("./routes/ownerRouter");
-const userRouter = require("./routes/userRouter");
-const productRouter = require("./routes/productRouter");
-const indexRouter = require("./routes/index");
-const dbViewRouter = require("./routes/dbViewRouter");
+// Test route first (before any other imports)
+app.get('/test', (req, res) => {
+  res.json({ 
+    message: 'App is working!', 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    mongoUri: process.env.MONGO_URI ? 'Set' : 'Not Set'
+  });
+});
+
+// Try to load modules with error handling
+let db, ownerRouter, userRouter, productRouter, indexRouter, dbViewRouter;
+
+try {
+  db = require("./config/mongoose-connection");
+  ownerRouter = require("./routes/ownerRouter");
+  userRouter = require("./routes/userRouter");
+  productRouter = require("./routes/productRouter");
+  indexRouter = require("./routes/index");
+  dbViewRouter = require("./routes/dbViewRouter");
+} catch (error) {
+  console.error("Error loading modules:", error.message);
+}
 
 const cookieParser = require("cookie-parser");
 const ejs = require("ejs");
@@ -37,21 +54,26 @@ app.use(
 );
 app.use(flash());
 
-// Test route
-app.get('/test', (req, res) => {
-  res.json({ message: 'App is working!', timestamp: new Date().toISOString() });
-});
+// Only add routes if modules loaded successfully
+if (indexRouter) app.use("/", indexRouter);
+if (ownerRouter) app.use("/owners", ownerRouter);
+if (userRouter) app.use("/users", userRouter);
+if (productRouter) app.use("/products", productRouter);
+if (dbViewRouter) app.use("/db-view", dbViewRouter);
 
-app.use("/", indexRouter);
-app.use("/owners", ownerRouter);
-app.use("/users", userRouter);
-app.use("/products", productRouter);
-app.use("/db-view", dbViewRouter); // Database viewing route
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found', path: req.path });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).send('Something broke!');
+  res.status(500).json({ 
+    error: 'Something broke!', 
+    message: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 });
 
 // For Vercel serverless functions
