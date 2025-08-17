@@ -8,9 +8,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN (Primary) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Local CSS (fallback) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Local CSS (Fallback) -->
     <link href="/stylesheets/output.css" rel="stylesheet" />
 </head>
 
