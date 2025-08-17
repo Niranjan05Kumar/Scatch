@@ -15,6 +15,7 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const upload = require("../config/multer-profile");
 
 // Basic middleware
 app.use(express.json());
@@ -389,13 +390,108 @@ app.get('/users/logout', (req, res) => {
 // User edit route
 app.get('/users/edit', async (req, res) => {
   try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+
+    // Check for JWT token first, then session
+    let user = null;
+    let userId = null;
+    
+    // Try JWT token authentication
+    const token = req.cookies.token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_KEY || "generatekaro");
+        user = await userModel.findOne({ email: decoded.email }).select("-password");
+        userId = user?._id;
+      } catch (jwtErr) {
+        console.log("JWT verification failed, trying session...");
+      }
+    }
+    
+    // Fallback to session authentication
+    if (!userId && req.session.user) {
+      userId = req.session.user._id;
+      user = await userModel.findById(userId).select("-password");
+    }
+
+    if (!userId || !user) {
+      req.flash('error', 'Please login to edit profile');
+      return res.redirect('/');
+    }
+
     res.render('userEdit', {
-      user: req.session.user || null,
+      user: user,
       error: req.flash('error'),
       success: req.flash('success')
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to load user edit page' });
+    console.error('User edit error:', error);
+    req.flash('error', 'Failed to load edit page');
+    res.redirect('/account');
+  }
+});
+
+// User update route
+app.post('/users/update', upload.single('picture'), async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+
+    // Check for JWT token first, then session
+    let user = null;
+    let userId = null;
+    
+    // Try JWT token authentication
+    const token = req.cookies.token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_KEY || "generatekaro");
+        user = await userModel.findOne({ email: decoded.email });
+        userId = user?._id;
+      } catch (jwtErr) {
+        console.log("JWT verification failed, trying session...");
+      }
+    }
+    
+    // Fallback to session authentication
+    if (!userId && req.session.user) {
+      userId = req.session.user._id;
+      user = await userModel.findById(userId);
+    }
+
+    if (!userId || !user) {
+      req.flash('error', 'Please login to update profile');
+      return res.redirect('/');
+    }
+
+    let { fullname, contact } = req.body;
+    let picture = req.file ? `/images/uploads/profiles/${req.file.filename}` : user.picture;
+    
+    let updatedUser = await userModel.findOneAndUpdate(
+      { email: user.email },
+      {
+        fullname,
+        contact,
+        picture,
+      },
+      {
+        new: true,
+      }
+    );
+    
+    req.flash("success", "Profile updated successfully!");
+    res.redirect("/account");
+  } catch (error) {
+    console.error("Profile update error:", error);
+    req.flash("error", "An error occurred while updating the profile: " + error.message);
+    res.redirect("/users/edit");
   }
 });
 
