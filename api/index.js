@@ -4,6 +4,9 @@ const app = express();
 // Load environment variables
 require("dotenv").config();
 
+// Database connection
+require("../config/mongoose-connection");
+
 // Import required modules
 const cookieParser = require("cookie-parser");
 const ejs = require("ejs");
@@ -117,8 +120,16 @@ app.post('/users/login', async (req, res) => {
       return res.redirect('/');
     }
     
-    // Set user in session
+    // Generate JWT token
+    const token = jwt.sign(
+      { email, userid: user._id },
+      process.env.JWT_KEY || "generatekaro"
+    );
+    
+    // Set both JWT cookie and session for compatibility
+    res.cookie("token", token);
     req.session.user = user;
+    
     req.flash('success', 'Login successful!');
     res.redirect('/shop');
   } catch (error) {
@@ -193,37 +204,61 @@ app.get('/cart', async (req, res) => {
     const userModel = require("../models/user-model");
     const productModel = require("../models/product-model");
 
-    const userId = req.session.user?._id;
+    // Check for JWT token first, then session
+    let user = null;
+    let userId = null;
+    
+    // Try JWT token authentication
+    const token = req.cookies.token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_KEY || "generatekaro");
+        user = await userModel.findOne({ email: decoded.email }).select("-password").populate("cart");
+        userId = user?._id;
+      } catch (jwtErr) {
+        console.log("JWT verification failed, trying session...");
+      }
+    }
+    
+    // Fallback to session authentication
+    if (!userId && req.session.user) {
+      userId = req.session.user._id;
+      user = await userModel.findById(userId).populate('cart');
+    }
 
-    if (!userId) {
+    if (!userId || !user) {
       req.flash('error', 'Please login to view cart');
       return res.redirect('/');
     }
 
-    const user = await userModel.findById(userId).populate('cart.productId');
-    if (!user) {
-      req.flash('error', 'User not found');
-      return res.redirect('/');
-    }
-
-    // Calculate total
+    // Create cartItems array with quantity property
+    let cartItems = [];
     let total = 0;
-    user.cart.forEach(item => {
-      if (item.productId) {
-        total += (item.productId.price - item.productId.discount + 20) * item.quantity;
-      }
-    });
+    
+    if (user.cart && user.cart.length > 0) {
+      cartItems = user.cart.map(product => {
+        const quantity = 1; // Default quantity
+        const itemTotal = (product.price + 20 - product.discount) * quantity;
+        total += itemTotal;
+        
+        return {
+          productId: product,
+          quantity: quantity
+        };
+      });
+    }
 
     res.render('cart', {
       user: user,
-      cartItems: user.cart,
+      cartItems: cartItems,
       total: total,
       success: req.flash('success'),
       error: req.flash('error')
     });
   } catch (error) {
     console.error('Cart error:', error);
-    res.status(500).json({ error: 'Failed to load cart page' });
+    req.flash('error', 'Error loading cart');
+    res.redirect('/shop');
   }
 });
 
@@ -340,9 +375,30 @@ app.get('/addtocart/:productId', async (req, res) => {
     const userModel = require("../models/user-model");
 
     const { productId } = req.params;
-    const userId = req.session.user?._id;
+    
+    // Check for JWT token first, then session
+    let user = null;
+    let userId = null;
+    
+    // Try JWT token authentication
+    const token = req.cookies.token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_KEY || "generatekaro");
+        user = await userModel.findOne({ email: decoded.email }).select("-password");
+        userId = user?._id;
+      } catch (jwtErr) {
+        console.log("JWT verification failed, trying session...");
+      }
+    }
+    
+    // Fallback to session authentication
+    if (!userId && req.session.user) {
+      userId = req.session.user._id;
+      user = await userModel.findById(userId);
+    }
 
-    if (!userId) {
+    if (!userId || !user) {
       req.flash('error', 'Please login to add items to cart');
       return res.redirect('/');
     }
@@ -354,29 +410,16 @@ app.get('/addtocart/:productId', async (req, res) => {
       return res.redirect('/shop');
     }
 
-    // Find user and add to cart
-    const user = await userModel.findById(userId);
-    if (!user) {
-      req.flash('error', 'User not found');
-      return res.redirect('/');
-    }
-
     // Check if product already in cart
-    const existingCartItem = user.cart.find(item => item.productId.toString() === productId);
-    
-    if (existingCartItem) {
-      existingCartItem.quantity += 1;
+    if (!user.cart.includes(productId)) {
+      user.cart.push(productId);
+      await user.save();
+      req.flash('success', 'Product added to cart successfully!');
     } else {
-      user.cart.push({
-        productId: productId,
-        quantity: 1,
-        price: product.price
-      });
+      req.flash('warning', 'Product is already in your cart.');
     }
-
-    await user.save();
-    req.flash('success', 'Product added to cart successfully!');
-    res.redirect('/cart');
+    
+    res.redirect('/shop');
   } catch (error) {
     console.error('Add to cart error:', error);
     req.flash('error', 'Failed to add product to cart');
