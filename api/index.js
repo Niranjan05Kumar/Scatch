@@ -10,6 +10,8 @@ const ejs = require("ejs");
 const path = require("path");
 const session = require("express-session");
 const flash = require("connect-flash");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // Basic middleware
 app.use(express.json());
@@ -129,6 +131,133 @@ app.get('/api/users', async (req, res) => {
     console.error('Error fetching users:', error);
     res.status(500).json({ 
       error: 'Failed to fetch users', 
+      message: error.message
+    });
+  }
+});
+
+// Authentication routes
+app.post('/api/users/register', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+    
+    const { name, email, password } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists with this email' });
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create new user
+    const newUser = new userModel({
+      name,
+      email,
+      password: hashedPassword,
+      cart: []
+    });
+    
+    await newUser.save();
+    
+    res.json({ 
+      message: 'User registered successfully!', 
+      user: { id: newUser._id, name: newUser.name, email: newUser.email }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ 
+      error: 'Registration failed', 
+      message: error.message
+    });
+  }
+});
+
+app.post('/api/users/login', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+    
+    const { email, password } = req.body;
+    
+    // Find user
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+    
+    // Check password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+    
+    // Create JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_KEY || 'fallback-jwt-secret',
+      { expiresIn: '24h' }
+    );
+    
+    res.json({ 
+      message: 'Login successful!', 
+      token: token,
+      user: { id: user._id, name: user.name, email: user.email }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      error: 'Login failed', 
+      message: error.message
+    });
+  }
+});
+
+// Owner authentication
+app.post('/api/owners/login', async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+    
+    await mongoose.connect(mongoUri);
+    const ownerModel = require("../models/owner-model");
+    const productModel = require("../models/product-model");
+    
+    const { email, password } = req.body;
+    
+    // Find owner
+    const owner = await ownerModel.findOne({ email });
+    if (!owner) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+    
+    // Check password (plain text comparison as per original code)
+    if (password !== owner.password) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+    
+    // Get products for admin panel
+    const products = await productModel.find();
+    
+    res.json({ 
+      message: 'Owner login successful!', 
+      owner: { id: owner._id, email: owner.email },
+      products: products,
+      productCount: products.length
+    });
+  } catch (error) {
+    console.error('Owner login error:', error);
+    res.status(500).json({ 
+      error: 'Owner login failed', 
       message: error.message
     });
   }
