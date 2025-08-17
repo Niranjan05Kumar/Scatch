@@ -2,6 +2,14 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Load environment variables first
+require("dotenv").config();
+
+// Check for required environment variables
+if (!process.env.MONGO_URI) {
+  console.warn("WARNING: MONGO_URI environment variable not set!");
+}
+
 const db = require("./config/mongoose-connection");
 const ownerRouter = require("./routes/ownerRouter");
 const userRouter = require("./routes/userRouter");
@@ -14,7 +22,6 @@ const ejs = require("ejs");
 const path = require("path");
 const session = require("express-session");
 const flash = require("connect-flash");
-require("dotenv").config();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -26,7 +33,7 @@ app.use(
   session({
     resave: false,
     saveUninitialized: true,
-    secret: process.env.EXPRESS_SESSION_SECRET,
+    secret: process.env.EXPRESS_SESSION_SECRET || "fallback-secret",
   })
 );
 app.use(flash());
