@@ -4,8 +4,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-css": "npx @tailwindcss/cli -i ./public/stylesheets/input.css -o ./public/stylesheets/output.css",
-    "watch-css": "npx @tailwindcss/cli -i ./public/stylesheets/input.css -o ./public/stylesheets/output.css --watch",
+    "build-css": "npx tailwindcss -i ./public/stylesheets/input.css -o ./public/stylesheets/output.css --minify",
+    "watch-css": "npx tailwindcss -i ./public/stylesheets/input.css -o ./public/stylesheets/output.css --watch",
     "dev": "npm run watch-css & nodemon app.js",
     "start": "node app.js",
     "build": "npm run build-css",
@@ -21,7 +21,6 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.1.11",
     "bcrypt": "^6.0.0",
     "config": "^4.0.0",
     "connect-flash": "^0.1.1",
@@ -33,7 +32,9 @@
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.1",
-    "multer": "^2.0.1",
-    "tailwindcss": "^4.1.11"
+    "multer": "^2.0.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
   }
 }
