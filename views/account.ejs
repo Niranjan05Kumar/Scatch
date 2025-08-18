@@ -100,5 +100,29 @@
 
         <script src="/javascripts/logoutConfirm.js"></script>
         <script src="/javascripts/flashMessage.js"></script>
+        
+        <!-- Fallback inline script for logout functionality -->
+        <script>
+          // Backup logout functionality in case external script fails
+          document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById("logoutBtn");
+            const logoutToast = document.getElementById("logoutToast");
+            const cancelLogout = document.getElementById("cancelLogout");
+            
+            if (logoutBtn && logoutToast && cancelLogout) {
+              logoutBtn.addEventListener("click", function(e) {
+                e.preventDefault();
+                logoutToast.classList.remove("hidden");
+                logoutToast.classList.add("flex");
+              });
+              
+              cancelLogout.addEventListener("click", function(e) {
+                e.preventDefault();
+                logoutToast.classList.add("hidden");
+                logoutToast.classList.remove("flex");
+              });
+            }
+          });
+        </script>
 
         <%- include('./partials/footer') %>

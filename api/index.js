@@ -26,8 +26,24 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
 
-// Static files
+// Static files - Multiple paths for deployment compatibility
 app.use(express.static(path.join(__dirname, "../public")));
+app.use("/images", express.static(path.join(__dirname, "../public/images")));
+app.use("/javascripts", express.static(path.join(__dirname, "../public/javascripts")));
+app.use("/stylesheets", express.static(path.join(__dirname, "../public/stylesheets")));
+
+// Specific route for profile images
+app.get('/images/uploads/profiles/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '../public/images/uploads/profiles/', filename);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      // Fallback to default avatar
+      const defaultPath = path.join(__dirname, '../public/images/uploads/profiles/default-avatar.png');
+      res.sendFile(defaultPath);
+    }
+  });
+});
 
 // Session configuration
 app.use(
@@ -42,6 +58,18 @@ app.use(flash());
 // Serve frontend HTML
 app.get('/frontend', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// Specific route for JavaScript files
+app.get('/javascripts/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '../public/javascripts/', filename);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('JavaScript file not found:', filename);
+      res.status(404).send('JavaScript file not found');
+    }
+  });
 });
 
 // EJS View Routes

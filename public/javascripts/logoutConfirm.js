@@ -1,12 +1,24 @@
 
-document.addEventListener('DOMContentLoaded', function() {
-  const logoutBtn = document.getElementById("logoutBtn");
-  const logoutToast = document.getElementById("logoutToast");
-  const cancelLogout = document.getElementById("cancelLogout");
+// Logout confirmation functionality
+(function() {
+  'use strict';
+  
+  function initializeLogoutConfirm() {
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutToast = document.getElementById("logoutToast");
+    const cancelLogout = document.getElementById("cancelLogout");
 
-  console.log('Logout confirm script loaded'); // Debug log
+    console.log('Logout confirm script loaded'); // Debug log
 
-  if (logoutBtn && logoutToast && cancelLogout) {
+    if (!logoutBtn || !logoutToast || !cancelLogout) {
+      console.error('Logout elements not found:', {
+        logoutBtn: !!logoutBtn,
+        logoutToast: !!logoutToast,
+        cancelLogout: !!cancelLogout
+      });
+      return;
+    }
+
     console.log('All logout elements found'); // Debug log
     
     logoutBtn.addEventListener("click", function(e) {
@@ -40,11 +52,12 @@ document.addEventListener('DOMContentLoaded', function() {
         logoutToast.classList.remove("flex");
       }
     });
-  } else {
-    console.error('Logout elements not found:', {
-      logoutBtn: !!logoutBtn,
-      logoutToast: !!logoutToast,
-      cancelLogout: !!cancelLogout
-    });
   }
-});
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeLogoutConfirm);
+  } else {
+    initializeLogoutConfirm();
+  }
+})();
