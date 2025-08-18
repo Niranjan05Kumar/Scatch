@@ -32,15 +32,21 @@ app.use("/images", express.static(path.join(__dirname, "../public/images")));
 app.use("/javascripts", express.static(path.join(__dirname, "../public/javascripts")));
 app.use("/stylesheets", express.static(path.join(__dirname, "../public/stylesheets")));
 
-// Specific route for profile images
+// Specific route for profile images with better fallback
 app.get('/images/uploads/profiles/:filename', (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, '../public/images/uploads/profiles/', filename);
-  res.sendFile(filePath, (err) => {
+  
+  // Check if file exists
+  const fs = require('fs');
+  fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
+      console.log(`Profile image not found: ${filename}, serving default avatar`);
       // Fallback to default avatar
       const defaultPath = path.join(__dirname, '../public/images/uploads/profiles/default-avatar.png');
       res.sendFile(defaultPath);
+    } else {
+      res.sendFile(filePath);
     }
   });
 });
@@ -58,6 +64,61 @@ app.use(flash());
 // Serve frontend HTML
 app.get('/frontend', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// API route to get profile picture (for deployment compatibility)
+app.get('/api/profile-picture/:userId', async (req, res) => {
+  try {
+    const fs = require('fs');
+    const mongoose = require("mongoose");
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://niranjankumar112005:jkF4Oybwwiek4Vri@cluster0.ozyowe6.mongodb.net/scatch?retryWrites=true&w=majority&appName=Cluster0";
+
+    await mongoose.connect(mongoUri);
+    const userModel = require("../models/user-model");
+    
+    const user = await userModel.findById(req.params.userId).select('picture');
+    
+    if (!user || !user.picture || user.picture === '/images/uploads/profiles/default-avatar.png') {
+      // Send default avatar
+      const defaultPath = path.join(__dirname, '../public/images/uploads/profiles/default-avatar.png');
+      return res.sendFile(defaultPath);
+    }
+    
+    const picturePath = path.join(__dirname, '../public', user.picture);
+    fs.access(picturePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        // File doesn't exist, send default
+        const defaultPath = path.join(__dirname, '../public/images/uploads/profiles/default-avatar.png');
+        res.sendFile(defaultPath);
+      } else {
+        // File exists, send it
+        res.sendFile(picturePath);
+      }
+    });
+    
+  } catch (error) {
+    console.error('Profile picture API error:', error);
+    const defaultPath = path.join(__dirname, '../public/images/uploads/profiles/default-avatar.png');
+    res.sendFile(defaultPath);
+  }
+});
+
+// Debug route to check uploads folder
+app.get('/debug/uploads', (req, res) => {
+  const fs = require('fs');
+  const uploadsPath = path.join(__dirname, '../public/images/uploads/profiles/');
+  
+  fs.readdir(uploadsPath, (err, files) => {
+    if (err) {
+      res.json({ error: 'Could not read uploads directory', details: err.message });
+    } else {
+      res.json({ 
+        uploadsPath: uploadsPath,
+        files: files,
+        count: files.length 
+      });
+    }
+  });
 });
 
 // Specific route for JavaScript files
@@ -326,10 +387,25 @@ app.get('/account', async (req, res) => {
       return res.redirect('/');
     }
 
-    // Ensure user has required properties with defaults
+    // Ensure user has required properties with defaults and check if profile pic exists
+    const fs = require('fs');
+    let profilePicture = '/images/uploads/profiles/default-avatar.png';
+    
+    // Check if user has a custom profile picture and if file exists
+    if (user.picture && user.picture !== '/images/uploads/profiles/default-avatar.png') {
+      const picturePath = path.join(__dirname, '../public', user.picture);
+      try {
+        fs.accessSync(picturePath, fs.constants.F_OK);
+        profilePicture = user.picture; // File exists, use it
+      } catch (err) {
+        console.log(`Profile picture file not found: ${user.picture}, using default`);
+        // File doesn't exist, keep default
+      }
+    }
+    
     const accountUser = {
       ...user.toObject(),
-      picture: user.picture || '/images/uploads/profiles/default-avatar.png',
+      picture: profilePicture,
       fullname: user.fullname || 'User',
       email: user.email || '',
       contact: user.contact || 'Not provided',
