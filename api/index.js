@@ -104,6 +104,32 @@ app.get('/api/profile-picture/:userId', async (req, res) => {
   }
 });
 
+// Test Cloudinary configuration
+app.get('/test/cloudinary', async (req, res) => {
+  try {
+    const { v2: cloudinary } = require("cloudinary");
+    
+    // Test basic config
+    const config = cloudinary.config();
+    
+    res.json({
+      status: 'Cloudinary Configuration Test',
+      config: {
+        cloud_name: config.cloud_name ? 'Set' : 'Missing',
+        api_key: config.api_key ? 'Set' : 'Missing',
+        api_secret: config.api_secret ? 'Set' : 'Missing'
+      },
+      environment: {
+        CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
+        CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',
+        CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
+      }
+    });
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
 // Debug route to check uploads folder
 app.get('/debug/uploads', (req, res) => {
   const fs = require('fs');
@@ -584,20 +610,27 @@ app.post('/users/update', upload.single('picture'), async (req, res) => {
     
     // Handle picture upload if file is provided
     if (req.file) {
+      console.log('File received for upload:', req.file);
       const { uploadOnCloudinary, deleteFromCloudinary } = require("../config/cloudinary");
       
+      console.log('Uploading to Cloudinary...');
       // Upload new picture to Cloudinary
       const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
+      
+      console.log('Cloudinary response:', cloudinaryResponse);
       
       if (cloudinaryResponse) {
         // Delete old picture from Cloudinary if exists
         if (user.cloudinaryPublicId) {
+          console.log('Deleting old picture:', user.cloudinaryPublicId);
           await deleteFromCloudinary(user.cloudinaryPublicId);
         }
         
         picture = cloudinaryResponse.secure_url;
         cloudinaryPublicId = cloudinaryResponse.public_id;
+        console.log('New picture URL:', picture);
       } else {
+        console.error('Cloudinary upload failed');
         req.flash('error', 'Failed to upload profile picture. Please try again.');
         return res.redirect("/users/edit");
       }

@@ -1,6 +1,12 @@
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
 
+// Debug environment variables
+console.log("Cloudinary Configuration Debug:");
+console.log("CLOUD_NAME:", process.env.CLOUDINARY_CLOUD_NAME ? "✓ Set" : "✗ Missing");
+console.log("API_KEY:", process.env.CLOUDINARY_API_KEY ? "✓ Set" : "✗ Missing");
+console.log("API_SECRET:", process.env.CLOUDINARY_API_SECRET ? "✓ Set" : "✗ Missing");
+
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -9,19 +15,28 @@ cloudinary.config({
 
 const uploadOnCloudinary = async (localFilePath) => {
     try {
-        if (!localFilePath) return null;
+        console.log("Starting Cloudinary upload for:", localFilePath);
+        
+        if (!localFilePath) {
+            console.error("No file path provided");
+            return null;
+        }
 
+        // Check if file exists
+        if (!fs.existsSync(localFilePath)) {
+            console.error("File does not exist:", localFilePath);
+            return null;
+        }
+
+        console.log("File exists, proceeding with upload...");
+        
+        // Simple upload first (without transformations for testing)
         const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto",
             folder: "scatch/profiles", // Organize files in folders
-            transformation: [
-                { width: 300, height: 300, crop: "fill", gravity: "face" }, // Auto crop to face
-                { quality: "auto:good" }, // Optimize quality
-                { format: "webp" } // Modern format for better compression
-            ]
         });
         
-        console.log("File uploaded to Cloudinary:", response.secure_url);
+        console.log("File uploaded to Cloudinary successfully:", response.secure_url);
         
         // Delete local file after successful upload
         if (fs.existsSync(localFilePath)) {
