@@ -16,7 +16,6 @@ const flash = require("connect-flash");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const upload = require("../config/multer-profile");
-const { uploadOnCloudinary, deleteFromCloudinary } = require("../config/cloudinary");
 
 // Basic middleware
 app.use(express.json());
@@ -101,32 +100,6 @@ app.get('/api/profile-picture/:userId', async (req, res) => {
     console.error('Profile picture API error:', error);
     const defaultPath = path.join(__dirname, '../public/images/uploads/profiles/default-avatar.png');
     res.sendFile(defaultPath);
-  }
-});
-
-// Test Cloudinary configuration
-app.get('/test/cloudinary', async (req, res) => {
-  try {
-    const { v2: cloudinary } = require("cloudinary");
-    
-    // Test basic config
-    const config = cloudinary.config();
-    
-    res.json({
-      status: 'Cloudinary Configuration Test',
-      config: {
-        cloud_name: config.cloud_name ? 'Set' : 'Missing',
-        api_key: config.api_key ? 'Set' : 'Missing',
-        api_secret: config.api_secret ? 'Set' : 'Missing'
-      },
-      environment: {
-        CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
-        CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',
-        CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
-      }
-    });
-  } catch (error) {
-    res.json({ error: error.message });
   }
 });
 
@@ -414,9 +387,21 @@ app.get('/account', async (req, res) => {
       return res.redirect('/');
     }
 
-    // Use Cloudinary URL directly (no file system check needed)
-    const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/c_fill,g_face,h_300,w_300/v1/samples/people/default-avatar.png";
-    let profilePicture = user.picture || defaultAvatar;
+    // Ensure user has required properties with defaults and check if profile pic exists
+    const fs = require('fs');
+    let profilePicture = '/images/uploads/profiles/default-avatar.png';
+    
+    // Check if user has a custom profile picture and if file exists
+    if (user.picture && user.picture !== '/images/uploads/profiles/default-avatar.png') {
+      const picturePath = path.join(__dirname, '../public', user.picture);
+      try {
+        fs.accessSync(picturePath, fs.constants.F_OK);
+        profilePicture = user.picture; // File exists, use it
+      } catch (err) {
+        console.log(`Profile picture file not found: ${user.picture}, using default`);
+        // File doesn't exist, keep default
+      }
+    }
     
     const accountUser = {
       ...user.toObject(),
@@ -605,36 +590,7 @@ app.post('/users/update', upload.single('picture'), async (req, res) => {
     }
 
     let { fullname, contact } = req.body;
-    let picture = user.picture; // Default to current picture
-    let cloudinaryPublicId = user.cloudinaryPublicId; // Default to current public ID
-    
-    // Handle picture upload if file is provided
-    if (req.file) {
-      console.log('File received for upload:', req.file);
-      const { uploadOnCloudinary, deleteFromCloudinary } = require("../config/cloudinary");
-      
-      console.log('Uploading to Cloudinary...');
-      // Upload new picture to Cloudinary
-      const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
-      
-      console.log('Cloudinary response:', cloudinaryResponse);
-      
-      if (cloudinaryResponse) {
-        // Delete old picture from Cloudinary if exists
-        if (user.cloudinaryPublicId) {
-          console.log('Deleting old picture:', user.cloudinaryPublicId);
-          await deleteFromCloudinary(user.cloudinaryPublicId);
-        }
-        
-        picture = cloudinaryResponse.secure_url;
-        cloudinaryPublicId = cloudinaryResponse.public_id;
-        console.log('New picture URL:', picture);
-      } else {
-        console.error('Cloudinary upload failed');
-        req.flash('error', 'Failed to upload profile picture. Please try again.');
-        return res.redirect("/users/edit");
-      }
-    }
+    let picture = req.file ? `/images/uploads/profiles/${req.file.filename}` : user.picture;
     
     let updatedUser = await userModel.findOneAndUpdate(
       { email: user.email },
@@ -642,7 +598,6 @@ app.post('/users/update', upload.single('picture'), async (req, res) => {
         fullname,
         contact,
         picture,
-        cloudinaryPublicId,
       },
       {
         new: true,

@@ -11,11 +11,7 @@ const userSchema = new mongoose.Schema({
   contact: Number,
   picture: {
     type: String,
-    default: "https://res.cloudinary.com/demo/image/upload/c_fill,g_face,h_300,w_300/v1/samples/people/default-avatar.png",
-  },
-  cloudinaryPublicId: {
-    type: String,
-    default: null,
+    default: "/images/uploads/profiles/default-avatar.png",
   },
   cart: [{
     type: mongoose.Schema.Types.ObjectId,

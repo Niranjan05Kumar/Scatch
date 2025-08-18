@@ -1,14 +1,13 @@
 # Scatch - Modern E-commerce Platform
 
-A full-stack e-commerce platform built with Node.js, Express, MongoDB, and EJS templating. Features modern UI, Cloudinary-powered profile uploads, and secure authentication.
+A full-stack e-commerce platform built with Node.js, Express, MongoDB, and EJS templating. Features a modern UI, comprehensive admin dashboard, and secure user authentication system.
 
 ## 🌟 Features
 
 ### User Management
 - **Secure Authentication**: JWT-based authentication with bcrypt password hashing
 - **User Registration & Login**: Complete user onboarding flow
-- **Profile Management**: Cloudinary-powered profile picture uploads with automatic optimization
-- **Cloud Storage**: All profile pictures stored securely on Cloudinary CDN
+- **Profile Management**: Users can update profile information and upload profile pictures
 - **Password Security**: Secure password hashing and validation
 
 ### Product Management

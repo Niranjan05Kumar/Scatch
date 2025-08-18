@@ -6,12 +6,10 @@ const storage = multer.diskStorage({
     cb(null, 'public/images/uploads/profiles/');
   },
   filename: (req, file, cb) => {
-    // Use session user ID or generate timestamp-based name
-    const userId = req.session?.user?._id || req.user?._id || 'temp';
+    const userId = req.user._id;
     const timestamp = Date.now();
     const extension = path.extname(file.originalname);
     const filename = `user_${userId}_${timestamp}${extension}`;
-    console.log('Generated filename:', filename); // Debug log
     cb(null, filename);
   }
 });
