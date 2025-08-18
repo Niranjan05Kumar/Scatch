@@ -1,0 +1,48 @@
+/* Deployment-friendly styles for better compatibility */
+
+/* Ensure proper image loading */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Profile picture specific styles */
+.profile-picture {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #e5e7eb;
+}
+
+/* Logout modal styles */
+.logout-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.logout-modal.show {
+  display: flex;
+}
+
+/* Button hover effects */
+.btn-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive design for deployment */
+@media (max-width: 768px) {
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+  }
+}

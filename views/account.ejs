@@ -1,4 +1,7 @@
 <%- include('./partials/header') %>
+    <!-- Deployment specific CSS -->
+    <link rel="stylesheet" href="/stylesheets/deployment.css">
+    
     <%- include('./partials/flashMessage') %>
 
         <div class="container mx-auto my-10 px-4">
@@ -10,7 +13,7 @@
                                 <div
                                     class="mb-4 w-[120px] h-[120px] rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
                                     <img src="<%= user.picture || '/images/uploads/profiles/default-avatar.png' %>" alt="ProfilePicture"
-                                        class="h-full w-full object-cover" onerror="this.src='/images/uploads/profiles/default-avatar.png'">
+                                        class="profile-picture h-full w-full object-cover" onerror="this.src='/images/uploads/profiles/default-avatar.png'">
                                 </div>
                                 <h4 class="text-2xl font-semibold mb-1">
                                     <%= user.fullname || 'User' %>
