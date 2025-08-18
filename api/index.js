@@ -16,6 +16,7 @@ const flash = require("connect-flash");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const upload = require("../config/multer-profile");
+const { uploadOnCloudinary } = require("../config/cloudinary");
 
 // Basic middleware
 app.use(express.json());
@@ -100,6 +101,41 @@ app.get('/api/profile-picture/:userId', async (req, res) => {
     console.error('Profile picture API error:', error);
     const defaultPath = path.join(__dirname, '../public/images/uploads/profiles/default-avatar.png');
     res.sendFile(defaultPath);
+  }
+});
+
+// Test Cloudinary connection
+app.get('/test/cloudinary', async (req, res) => {
+  try {
+    const { v2: cloudinary } = require('cloudinary');
+    
+    // Check if environment variables are loaded
+    const config = {
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Not Set'
+    };
+    
+    // Test connection by getting account details
+    const result = await cloudinary.api.ping();
+    
+    res.json({
+      status: 'success',
+      message: 'Cloudinary connection successful',
+      config: config,
+      ping: result
+    });
+  } catch (error) {
+    res.json({
+      status: 'error',
+      message: 'Cloudinary connection failed',
+      error: error.message,
+      config: {
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'Not Set',
+        api_key: process.env.CLOUDINARY_API_KEY || 'Not Set',
+        api_secret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Not Set'
+      }
+    });
   }
 });
 
@@ -590,7 +626,41 @@ app.post('/users/update', upload.single('picture'), async (req, res) => {
     }
 
     let { fullname, contact } = req.body;
-    let picture = req.file ? `/images/uploads/profiles/${req.file.filename}` : user.picture;
+    let picture = user.picture; // Default to current picture
+    
+    console.log("=== Profile Update Debug Info ===");
+    console.log("User ID:", userId);
+    console.log("File received:", !!req.file);
+    if (req.file) {
+      console.log("File details:", {
+        filename: req.file.filename,
+        path: req.file.path,
+        size: req.file.size,
+        mimetype: req.file.mimetype
+      });
+    }
+    
+    // Handle profile picture upload to Cloudinary
+    if (req.file) {
+      console.log("Starting Cloudinary upload...");
+      console.log("File path for upload:", req.file.path);
+      
+      // Upload to Cloudinary
+      const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
+      
+      console.log("Cloudinary response:", cloudinaryResponse);
+      
+      if (cloudinaryResponse && cloudinaryResponse.secure_url) {
+        picture = cloudinaryResponse.secure_url;
+        console.log("✅ Profile picture uploaded to Cloudinary:", picture);
+      } else {
+        console.error("❌ Failed to upload to Cloudinary");
+        req.flash("error", "Failed to upload profile picture");
+        return res.redirect("/users/edit");
+      }
+    } else {
+      console.log("No file to upload, keeping existing picture:", picture);
+    }
     
     let updatedUser = await userModel.findOneAndUpdate(
       { email: user.email },
